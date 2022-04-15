@@ -38,3 +38,13 @@ url_signer = URLSigner(session)
 def index():
     print("User:", get_user_email())
     return dict()
+
+@action('profile')
+@action.uses('profile.html')
+def profile():
+    return dict()
+
+@action('company')
+@action.uses('company.html')
+def company():
+    return dict()

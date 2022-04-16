@@ -1,5 +1,62 @@
 [[extend 'layout.html']]
 
 <div class="section">
-   <p class="title is-1">Company Page</p>
+   <div class="columns">
+      <div class="column is-two-thirds">
+         <!-- Search bar -->
+         <div class="block">
+            <input class="input" type="text" placeholder="Search Bar">
+         </div>
+         <!-- Price chart -->
+         <div class="block">
+            <div class="box">
+               Company Name, Symbol, Price, Date, Chart
+            </div>
+            <div class="block has-text-centered">
+               Time Scale <a href="">1d, 1w, 1m, 3m, 6m, ytd, 1y, 2y, 5y, all</a>
+            </div>
+         </div>
+         <!-- Buttons -->
+         <div class="block has-text-centered">
+            <a class="button"><<</a>
+            <a class="button"><</a>
+            <a class="button">></a>
+            <a class="button">>></a>
+         </div>
+      </div>
+
+      <div class="column">
+         <!-- User -->
+         <div class="box">
+            <div class="columns">
+               <!-- Pic -->
+               <div class="column">
+                  <div class="box">
+                     Profile Pic
+                  </div>
+               </div>
+               <!-- Info -->
+               <div class="column">
+                  <p>Name</p>
+                  <p>Net Worth</p>
+                  <p>Available Balance</p>
+               </div>
+            </div>
+         </div>
+         <!-- Stock stats -->
+         <div class="box">
+            <p>Stock stats:</p>
+            <p>PE</p>
+            <p>EPS</p>
+            <p>Market Cap</p>
+            <p>Div Yield</p>
+            <p>Future EPS</p>
+         </div>
+         <!-- Transactions -->
+         <div class="box has-text-centered">
+            <p><a href="">Buy</a> <a href="">Sell</a></p>
+            <p><a href="">Call</a> <a href="">Put</a></p>
+         </div>
+      </div>
+   </div>
 </div>

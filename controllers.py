@@ -48,3 +48,8 @@ def profile():
 @action.uses('company.html')
 def company():
     return dict()
+
+@action('search')
+@action.uses('search.html')
+def search():
+    return dict()

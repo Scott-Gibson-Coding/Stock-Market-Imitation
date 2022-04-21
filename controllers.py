@@ -25,10 +25,12 @@ session, db, T, auth, and tempates are examples of Fixtures.
 Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app will result in undefined behavior
 """
 
-from py4web import action, request, abort, redirect, URL
-from yatl.helpers import A
-from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
+from py4web import URL, abort, action, redirect, request
 from py4web.utils.url_signer import URLSigner
+from yatl.helpers import A
+
+from .common import (T, auth, authenticated, cache, db, flash, logger, session,
+                     unauthenticated)
 from .models import get_user_email
 
 url_signer = URLSigner(session)
@@ -37,19 +39,22 @@ url_signer = URLSigner(session)
 @action.uses(db, auth, 'index.html')
 def index():
     print("User:", get_user_email())
-    return dict()
+    return globals()
 
 @action('profile')
-@action.uses('profile.html')
+@action.uses(db, auth,'profile.html')
 def profile():
-    return dict()
-
+    print(globals()['auth'].get_user())
+    return globals()
+    
 @action('company')
-@action.uses('company.html')
+@action.uses(db, auth, 'company.html')
 def company():
-    return dict()
+    print(globals()['auth'].get_user())
+    return globals()
 
 @action('search')
-@action.uses('search.html')
+@action.uses(db, auth, 'search.html')
 def search():
-    return dict()
+    print(globals()['auth'].get_user())
+    return globals()

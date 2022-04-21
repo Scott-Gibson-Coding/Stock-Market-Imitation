@@ -35,11 +35,12 @@
         <div class="navbar-end">
           <div class="navbar-item">
             <div class="buttons">
-              [[if globals().get('user'):]]
+
+              [[ if 'auth' in globals() and globals()['auth'].get_user():]]
                 <div class="navbar-item has-dropdown is-hoverable">
                   <a class="navbar-link is-primary">
-                    [[=globals().get('user').get('email')]]
-                  </a>
+                    [[ =globals()['auth'].get_user()['email'] ]]
+                  </a> 
                   <div class="navbar-dropdown">
                     <a class="navbar-item" href="[[=URL('auth/logout')]]">Logout</a>
                     <a class="navbar-item" href="[[=URL('auth/profile')]]">Profile</a>

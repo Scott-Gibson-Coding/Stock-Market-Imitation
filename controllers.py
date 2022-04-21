@@ -36,20 +36,20 @@ url_signer = URLSigner(session)
 @action('index')
 @action.uses(db, auth, 'index.html')
 def index():
-    print("User:", get_user_email())
-    return dict()
+    return {'user': auth.get_user()}
 
 @action('profile')
-@action.uses('profile.html')
+@action.uses(db, auth, 'profile.html')
 def profile():
-    return dict()
+    return {'user': auth.get_user()}
 
 @action('company')
-@action.uses('company.html')
+@action.uses(db, auth, 'company.html')
 def company():
-    return dict()
+    return {'user': auth.get_user()}
 
 @action('search')
-@action.uses('search.html')
+@action.uses(db, auth, 'search.html')
 def search():
-    return dict()
+    return {'user': auth.get_user()}
+

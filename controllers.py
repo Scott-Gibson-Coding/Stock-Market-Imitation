@@ -34,22 +34,22 @@ from .models import get_user_email
 url_signer = URLSigner(session)
 
 @action('index')
-@action.uses(db, auth, 'index.html')
+@action.uses('index.html', db, auth)
 def index():
-    return {'user': auth.get_user()}
+    return {}
 
 @action('profile')
-@action.uses(db, auth, 'profile.html')
+@action.uses('profile.html', db, auth)
 def profile():
-    return {'user': auth.get_user()}
+    return {}
 
 @action('company')
-@action.uses(db, auth, 'company.html')
+@action.uses('company.html', db, auth)
 def company():
-    return {'user': auth.get_user()}
+    return {}
 
 @action('search')
-@action.uses(db, auth, 'search.html')
+@action.uses('search.html', db, auth)
 def search():
-    return {'user': auth.get_user()}
+    return {}
 

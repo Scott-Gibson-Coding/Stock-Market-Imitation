@@ -38,9 +38,9 @@ url_signer = URLSigner(session)
 def index():
     return {}
 
-@action('profile')
-@action.uses('profile.html', db, auth)
-def profile():
+@action('portfolio')
+@action.uses('portfolio.html', db, auth)
+def portfolio():
     return {}
 
 @action('company')

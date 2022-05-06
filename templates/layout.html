@@ -9,12 +9,12 @@
     <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.css">
     [[block page_head]]<!-- individual pages can customize header here -->[[end]]
   </head>
-  <body>
+  <body style="background-color:black">
     <!-- Navigation bar -->
     <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
         <a class="navbar-item" href="[[=URL('index')]]">
-          Learn py4web
+          Stock Market Imitation 
           <!-- <img class="logo" width="150" src="images/site_icon.png"> -->
         </a>
 
@@ -41,10 +41,12 @@
                     [[=globals().get('user').get('email')]]
                   </a>
                   <div class="navbar-dropdown">
-                    <a class="navbar-item" href="[[=URL('auth/logout')]]">Logout</a>
+                    <a class="navbar-item" href="[[=URL('portfolio')]]">Portfolio</a>
                     <a class="navbar-item" href="[[=URL('auth/profile')]]">Profile</a>
-                    <a class="navbar-item" href="[[=URL('auth/change_password')]]">Change Password</a></li>
+                    <a class="navbar-item" href="[[=URL('auth/change_password')]]">Change Password</a>
+                    <a class="navbar-item" href="[[=URL('auth/logout')]]">Logout</a>
 
+                  </li>
                   </div>
                 </div>
               [[else:]]
@@ -60,12 +62,7 @@
     <!-- beginning of HTML inserted by extending template -->
     [[include]]
     <!-- end of HTML inserted by extending template -->
-    <footer class="footer">
-      <div class="content has-text-centered">
-        Made with <a href="https://py4web.com">py4web</a>.
-        <a href="https://learn-py4web.github.io">Learn py4web!</a>
-      </div>
-    </footer>
+    
   </body>
   <script src="js/sugar.min.js"></script>
   <script src="js/axios.min.js"></script>

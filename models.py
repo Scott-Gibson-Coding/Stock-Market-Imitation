@@ -20,4 +20,45 @@ def get_time():
 #
 ## always commit your models to avoid problems later
 
+# auth.current_user already holds email, first name, and last name
+# but we still need to save the amount of money a user has
+# available for investing.
+# User table, could be used for user balance, nickname, profile details, profile image,...
+db.define_table(
+    'user',
+    Field('user_balance', 'float', default=0.),
+    Field('user_email', default=get_user_email),
+)
+
+# Company table for information about companies
+# This might be implemented another way depending on how we
+# get stock information / history
+db.define_table(
+    'company',
+    Field('company_name'),
+    Field('company_symbol'),
+    Field('current_stock_value'),
+)
+
+# Transaction table to hold info about all the transactions taking place
+# We can see what a user owns by iterating through transactions and noting
+# what they currently have and what they used to have.
+# I.e. if stock_sell_date has a value or a date before the current date, depending
+# on how we define it.
+# Since stock_sell_value and stock_sell_date are initially empty, we should have a convention
+# which can be noticed.
+db.define_table(
+    'transaction',
+    Field('company_id', 'reference company'), # The company whose stock this is
+    Field('stock_count', 'float', default=0.),
+    Field('stock_buy_value', 'float', default=0.),
+    Field('stock_buy_date', default=get_time),
+    Field('stock_sell_value', 'float', default=-1), # Sell value -1 if not yet sold
+    Field('stock_sell_date', default="N/A"), # Sell date 'N/A' if not yet sold
+    Field('user_id', 'reference user'), # The owner of this transaction
+)
+
+# TODO: Make fields unreadable and unwritable if they would appear in forms...
+
+
 db.commit()

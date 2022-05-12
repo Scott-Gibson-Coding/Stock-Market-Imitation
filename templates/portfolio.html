@@ -1,6 +1,12 @@
 [[extend 'layout.html']]
 
-<div class="section pl-6 pr-6" style="font-weight: bold; font-size: 24px;">
+<style>
+    [v-cloak] {
+        display: none;
+    }
+</style>    
+
+<div class="section pl-6 pr-6" id="vue-target" v-cloak style="font-weight: bold; font-size: 24px;">
    <div class="columns">
       <div class="column is-two-thirds notification is-dark m-1">
          <div class="block">
@@ -19,3 +25,8 @@
       </div>
    </div>
 </div>
+
+[[block page_scripts]]
+<!-- Loads the portfolio-specific js for Vue -->
+<script src="js/portfolio.js"></script>
+[[end]]

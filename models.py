@@ -50,12 +50,11 @@ db.define_table(
 db.define_table(
     'transaction',
     Field('company_id', 'reference company'), # The company whose stock this is
-    Field('stock_count', 'float', default=0.),
-    Field('stock_buy_value', 'float', default=0.),
-    Field('stock_buy_date', default=get_time),
-    Field('stock_sell_value', 'float', default=-1), # Sell value -1 if not yet sold
-    Field('stock_sell_date', default="N/A"), # Sell date 'N/A' if not yet sold
     Field('user_id', 'reference user'), # The owner of this transaction
+    Field('transaction_type', requires=IS_IN_SET(['buy', 'sell'])),
+    Field('count', type='float', requires=IS_FLOAT_IN_RANGE(0, None)),
+    Field('value_per_share', type='float', requires=IS_FLOAT_IN_RANGE(0, None)),
+    Field('transaction_date', 'datetime', default=get_time)
 )
 
 # TODO: Make fields unreadable and unwritable if they would appear in forms...

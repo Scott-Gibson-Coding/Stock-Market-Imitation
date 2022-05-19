@@ -29,6 +29,20 @@ class Company:
         return str(rep)
     __repr__ = __str__
 
+    ####
+    # Getters /  Setters
+    ####
+    # Can be replaced with queries to db
+    def get_stock_price(self):
+        return self.stock_price
+    def get_latest_update(self):
+        return self.latest_update
+    def set_latest_update(self, latest_update):
+        self.latest_update = latest_update
+    def update_stock_price(self, new_vals):
+        self.stock_price += new_vals
+
+
 
 class StockSimulator:
     # Class variables
@@ -43,6 +57,16 @@ class StockSimulator:
         self.update_interval = update_interval
         self.companies = self.generate_companies(num_companies, initial_values, current_time)
     
+    ####
+    # Getters
+    ####
+    # Can be replaced with call to db
+    def get_companies(self):
+        return self.companies
+    ####
+    # Setters
+    ####
+
     ############ 
     # Methods
     ############
@@ -78,7 +102,8 @@ class StockSimulator:
         is current. If not, get new values for the stock
         """
         assert symbol is not None
-        c = self.companies.get(symbol, None)
+        companies = self.get_companies()
+        c = companies.get(symbol, None)
         if c is None:
             raise ValueError("Company with symbol \"{}\" does not exist.".format(symbol))
         current_time = datetime.datetime.utcnow()
@@ -86,8 +111,8 @@ class StockSimulator:
         if time_delta >= self.update_interval:
             # We need to generate at least one new value
             n = int(time_delta / self.update_interval)
-            c.stock_price += self.generate_new_values(c.stock_price, n)
-            c.latest_update = current_time
+            c.update_stock_price(self.generate_new_values(c.stock_price, n))
+            c.set_latest_update(current_time) 
 
     def get_stock_history(self, symbol=None, update=True):
         """
@@ -99,18 +124,19 @@ class StockSimulator:
         if symbol is None:
             # Get history for every company
             stock_prices = {}
-            for k in self.companies.keys():
+            companies = self.get_companies()
+            for k in companies.keys():
                 if update:
                     self.check_for_updates(k)
-                stock_prices[k] = self.companies[k].stock_price
+                stock_prices[k] = companies[k].stock_price
             return stock_prices
         #else we have a specific company
-        c = self.companies.get(symbol, None)
+        c = companies.get(symbol, None)
         if c is None:
             raise ValueError("Company with symbol \"{}\" does not exist.".format(symbol))
         if update:
             self.check_for_updates(symbol)
-        hist = c.stock_price
+        hist = c.get_stock_price()
         return hist
     
     def get_current_value(self, symbol=None, update=True):
@@ -120,9 +146,10 @@ class StockSimulator:
         If update is True, make sure stock value is up to date.
         Otherwise, return current value(s) AS IS.
         """
+        companies = self.get_companies()
         companies_to_query = []
         if symbol is None:
-            companies_to_query = [s for s in self.companies.keys()]
+            companies_to_query = [s for s in companies.keys()]
         else:
             companies_to_query = [symbol]
         # For each company, make sure they have the latest value
@@ -130,7 +157,18 @@ class StockSimulator:
             for symb in companies_to_query:
                 self.check_for_updates(symb)
         if len(companies_to_query) == 1:
-            return self.companies[companies_to_query[0]].stock_price[-1]
+            return companies[companies_to_query[0]].get_stock_price()[-1]
         return {
-            s:self.companies[s].stock_price[-1] for s in companies_to_query
+            s:companies[s].get_stock_price()[-1] for s in companies_to_query
         }
+
+import time
+N = 2
+sim = StockSimulator(N, [1]*N, 1)
+print(sim.get_stock_history(update=False))
+#print(sim.get_current_value('c0'))
+time.sleep(2.1)
+print(sim.get_stock_history())
+time.sleep(2.1)
+print(sim.get_stock_history())
+print(sim.get_current_value())

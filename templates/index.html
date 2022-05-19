@@ -1,19 +1,135 @@
-[[extend 'layout.html']]
+[[extend 'index_layout.html']]
 
 <style>
+    body {
+        height: 100vh;
+        background-color: rgb(245, 245, 255);
+    }
+
     [v-cloak] {
         display: none;
     }
-</style>    
 
-<div class="section" id="vue-target" v-cloak>
-    <p class="title is-1">Main Page</p>
-    <a href="[[=URL('search')]]">
-        <button class="button">Search for Stock</button>
-    </a>
+    #index_navbar {
+        min-height: 20vh !important;
+    }
+
+    [index] {
+        background-color: rgb(245, 245, 255);
+        width: 90vw;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    [main_title] {
+        background-color: lightblue;
+        text-align: center;
+    }
+
+    [form] {
+        width: 75%;
+    }
+</style>
+
+<div class="section" id="vue-target" v-cloak index>
+    <div class="title is-1 p-6 mb-6" main_title>
+        Stock Market Simulator
+    </div>
+    [[if not user:]]
+    <div class="columns is-3">
+        <div class="column">
+            <div class="title">
+                Sign Up
+            </div>
+            <!-- Sign up form -->
+            <form class="form" form>
+                <div class="field">
+                    <div class="control has-icons-left">
+                        <span class="icon is-left">
+                            <i class="fa fa-envelope-o"></i>
+                        </span>
+                        <input class="input is-rounded is-primary" type="email" placeholder="email" 
+                            v-model="sign_up_email" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <input class="input is-rounded is-primary" type="text" placeholder="first name" 
+                            v-model="sign_up_first_name" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <input class="input is-rounded is-primary" type="text" placeholder="last name" 
+                            v-model="sign_up_last_name" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <input class="input is-rounded is-primary" type="password"
+                            v-model="sign_up_password" required>
+                    </div>
+                </div>
+            </form>
+            <button class="button is-rounded is-medium is-dark is-outlined mt-3"
+                @click="signup">Sign Up</button>
+        </div>
+        <div class="column">
+            <div class="title">
+                Log In
+            </div>
+            <!-- Log in form -->
+            <form class="form" form>
+                <div class="field">
+                    <div class="control has-icons-left">
+                        <span class="icon is-left">
+                            <i class="fa fa-envelope-o"></i>
+                        </span>
+                        <input class="input is-rounded is-link" type="email" placeholder="email" 
+                            v-model="log_in_email" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <input class="input is-rounded is-link" type="password" 
+                            v-model="log_in_password" required>
+                    </div>
+                </div>
+            </form>
+            <button class="button is-rounded is-medium is-dark is-outlined mt-3"
+                @click="login">Log In</button>
+        </div>
+    </div>
+    [[else:]]
+    <!-- Search button -->
+    <div class="columns">
+        <div class="column is-8">
+            <div class="title">
+                Welcome [[=user['first_name']]] [[=user['last_name']]]
+            </div>
+        </div>
+        <div class="column is-4">
+            <a href="[[=URL('search')]]">
+                <button class="button is-large is-fullwidth is-primary">
+                    <span class="icon">
+                        <i class="fa fa-bandcamp"></i>
+                    </span>
+                    <span>
+                        Search for Stock
+                    </span>
+                </button>
+            </a>
+        </div>
+    </div>
+    [[pass]]
 </div>
 
 [[block page_scripts]]
-<!-- Loads the index-specific js for Vue -->
+<!-- Sets urls for use in index.js -->
+<script>
+    let index_url = "[[=XML(URL())]]"
+    let login_url = "[[=XML(login_url)]]";
+    let sign_up_url = "[[=XML(sign_up_url)]]";
+</script>
 <script src="js/index.js"></script>
 [[end]]

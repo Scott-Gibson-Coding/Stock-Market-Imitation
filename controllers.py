@@ -52,4 +52,3 @@ def company():
 @action.uses('search.html', db, auth)
 def search():
     return {}
-

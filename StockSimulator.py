@@ -5,7 +5,8 @@ import random
 from .common import db
 
 class StockSimulator:
-    # Class variables: N/A
+    # Class variables
+    names_file = "./static/text-files/company-names.json"
 
     # Constructor
     def __init__(self, update_interval):
@@ -47,6 +48,33 @@ class StockSimulator:
     # Methods
     ############
 
+    def create_company_names(self, n):
+        """
+        If the names are not provided, creation of company names will be
+        done in this function. Accesses names and suffixes from the names file
+        class variable.
+        
+        Params:
+        n : The number of companies to generate
+        Returns: A list of company names.
+        """
+        import json
+        names = []
+        with open(self.names_file, 'r') as json_file:
+            name_file = json.load(json_file)
+            name_list = name_file['name_string'].split(' ')
+            suffixes = name_file['suffixes']
+            n_possible = len(name_list)*len(suffixes)
+            for i in range(n):
+                name = random.choice(name_list)
+                sfx = random.choice(suffixes)
+                new_name = (name + " " + sfx).strip(" ")
+                if (n_possible > 2*n) and (new_name in names):
+                    i -= 1
+                    continue
+                names.append(new_name)
+        return names
+
     def initialize_database(self, num_companies, initial_values, names=None, symbols=None):
         """
         Empty the company and stock_history databases and fill them
@@ -56,7 +84,8 @@ class StockSimulator:
         """
         assert num_companies == len(initial_values), "The number of companies must equal the number of prescribed initial stock prices."
         if names is None:
-            names = ["c"+str(i) for i in range(num_companies)]
+            #names = ["c"+str(i) for i in range(num_companies)]
+            names = self.create_company_names(num_companies)
         if symbols is None:
             symbols = ["c"+str(i) for i in range(num_companies)]
         assert len(names) == num_companies, "The number of companies must equal the number of assigned names."

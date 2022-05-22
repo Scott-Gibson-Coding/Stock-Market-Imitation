@@ -52,3 +52,29 @@ def company():
 @action.uses('search.html', db, auth)
 def search():
     return {}
+
+from .StockSimulator import StockSimulator
+# Initialize a simulator which updates every second
+Simulator = StockSimulator(1)
+# Demo of chart functionality
+@action('chart_demo')
+@action.uses('chart_demo.html', db, url_signer)
+def chart():
+    # Initialize database with 5 new companies
+    Simulator.initialize_database(5, [5]*5)
+    return {
+        'get_history_url' : URL('get_stock_history', signer=url_signer),
+    }
+
+@action('get_stock_history')
+@action.uses(db, url_signer.verify())
+def get_stock_history():
+    # Load companies. For the demo we just use the first one.
+    companies = Simulator.load_companies()
+    k = list(companies.keys())[0]
+    # Get the stock history of the first company (list)
+    hist = Simulator.get_stock_history(k)
+    return dict(
+        name = companies[k]['company_name'],
+        stock_history = hist,
+    )

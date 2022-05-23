@@ -6,7 +6,7 @@ from .common import db
 
 class StockSimulator:
     # Class variables
-    names_file = "./static/text-files/company-names.json"
+    names_file = "./apps/StockMarketImitation/static/text-files/company-names.json"
 
     # Constructor
     def __init__(self, update_interval):

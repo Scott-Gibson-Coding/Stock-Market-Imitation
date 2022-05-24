@@ -57,6 +57,7 @@ def index():
     )
 
 
+
 @action('portfolio')
 @action.uses('portfolio.html', db, auth)
 def portfolio():

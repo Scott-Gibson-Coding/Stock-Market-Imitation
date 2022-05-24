@@ -24,11 +24,6 @@
                <span>Refresh Quote</span>
             </a>
          </div>
-         <!-- Search bar
-         <div class="block">
-            <input class="input" type="text" placeholder="Search Bar">
-         </div>
-         -->
 
          <!-- Company and price information -->
          <div class="block">
@@ -96,21 +91,60 @@
          </div>
          <!-- Transactions -->
          <div class="box has-text-centered">
-            <!-- Maybe link to popup modal with details of transaction
-            ex: how many shares you will buy/sell, current price, how many shares would be your new total -->
-            <a class="button is-success">
+            <a class="button is-success" @click="show_buy_menu(true)">
                <span class="icon">
                   <i class="fa fa-plus-circle"></i>
                </span>
                <span>Buy</span>
             </a>
-            <a class="button is-danger">
+            <a class="button is-danger" @click="show_sell_menu(true)">
                <span class="icon">
                   <i class="fa fa-minus-circle"></i>
                </span>
                <span>Sell</span>
             </a>
             <!-- TODO Call, Put? -->
+            <!-- TODO How many shares you will buy/sell, current price, how many shares would be your new total -->
+            <!-- Buy modal popup -->
+            <div class="modal" :class="{'is-active': buy_menu}">
+               <div class="modal-background" @click="show_buy_menu(false)"></div>
+               <div class="modal-card">
+                  <header class="modal-card-head">
+                     <p class="modal-card-title">Modal title</p>
+                     <button class="delete" aria-label="close" @click="show_buy_menu(false)"></button>
+                  </header>
+                  <section class="modal-card-body">
+                     <h1 class="title">Buy [[=co_name]] ([[=co_ticker]])?</h1>
+                     <h2 class="subtitle">Enter the number of shares you would like to purchase in the box.</h2>
+                     <!-- TODO text box entry and form submission -->
+                  </section>
+                  <footer class="modal-card-foot">
+                     <!-- TODO implement buy functionality; for now, simply close the modal -->
+                     <button class="button is-success" @click="show_buy_menu(false)">Confirm Purchase</button>
+                     <button class="button" @click="show_buy_menu(false)">Cancel</button>
+                  </footer>
+               </div>
+            </div>
+            <!-- Sell modal popup -->
+            <div class="modal" :class="{'is-active': sell_menu}">
+               <div class="modal-background" @click="show_sell_menu(false)"></div>
+               <div class="modal-card">
+                  <header class="modal-card-head">
+                     <p class="modal-card-title">Modal title</p>
+                     <button class="delete" aria-label="close" @click="show_sell_menu(false)"></button>
+                  </header>
+                  <section class="modal-card-body">
+                     <h1 class="title">Sell [[=co_name]] ([[=co_ticker]])?</h1>
+                     <h2 class="subtitle">Enter the number of shares you would like to sell in the box.</h2>
+                     <!-- TODO text box entry and form submission -->
+                  </section>
+                  <footer class="modal-card-foot">
+                     <!-- TODO implement sell functionality; for now, simply close the modal -->
+                     <button class="button is-success" @click="show_sell_menu(false)">Confirm Sale</button>
+                     <button class="button" @click="show_sell_menu(false)">Cancel</button>
+                  </footer>
+               </div>
+            </div>
          </div>
       </div>
    </div>

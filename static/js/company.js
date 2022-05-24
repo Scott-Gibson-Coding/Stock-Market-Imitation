@@ -18,6 +18,8 @@ let init = (app) => {
         is_green: false,
         is_red: false,
         is_flat: false,
+        buy_menu: false,
+        sell_menu: false,
     };
 
     app.enumerate = (a) => {
@@ -51,16 +53,24 @@ let init = (app) => {
         axios.post(company_refresh_url, {
             co_id: co_id
         }).then(function (response) {
-            // TODO
             app.vue.co_price = response.data.companies['current_stock_value'];
-            // app.vue.co_change = response.data.companies.co_change;
         });
     };
+
+    app.show_buy_menu = function(flag) {
+        app.vue.buy_menu = flag;
+    }
+
+    app.show_sell_menu = function(flag) {
+        app.vue.sell_menu = flag;
+    }
 
     // This contains all the methods
     app.methods = {
         determine_color: app.determine_color,
         refresh_quote: app.refresh_quote,
+        show_buy_menu: app.show_buy_menu,
+        show_sell_menu: app.show_sell_menu,
     };
 
     // This creates the Vue instance

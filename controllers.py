@@ -34,9 +34,14 @@ from .models import get_user_email
 url_signer = URLSigner(session)
 
 @action('index')
-@action.uses('index.html', db, auth)
+@action.uses('index.html', auth)
 def index():
-    return {}
+    user = auth.get_user()
+    return dict(
+        user=user,
+        login_url = URL('auth/api/login'),
+        sign_up_url = URL('auth/api/register'),
+    )
 
 @action('portfolio')
 @action.uses('portfolio.html', db, auth)

@@ -122,4 +122,16 @@ def company_refresh():
 @action('search')
 @action.uses('search.html', db, auth)
 def search():
-    return {}
+    return dict(search_data_url = URL('search_data'), company_url = URL('company'))
+
+
+@action('search_data')
+@action.uses(db, auth)
+def search_data():
+    company_rows = []
+    simulator_data = s.load_companies()
+    for key in simulator_data:
+        company_rows.append(simulator_data[key])
+    
+    return dict(company_rows = company_rows)
+

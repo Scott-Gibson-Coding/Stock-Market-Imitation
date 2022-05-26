@@ -90,12 +90,12 @@ def portfolio():
 def get_holdings():
     user_id = auth.get_user().get('id')
     holdings = get_portfolio(user_id)['holdings']
-    holdings = [{'company_name' : db.company[k].company_name, 
+    holdings = [{'company_name' : (c := db.company[k]).company_name, 
+                 'ticker' : c.company_symbol,
                  'shares' : v,
-                 'price' : db.company[k].current_stock_value,
+                 'price' : c.current_stock_value,
                  'bought_price' : get_avg_bought_price(user_id, k)} for k,v in holdings.items()]
     return {'holdings' : holdings}
-
 
 # If no ticker provided, default to S&P 500
 # For now, these companies are available (go to /company/ticker):
@@ -160,15 +160,16 @@ def search():
 @action('test_setup')
 @action.uses(db, auth.user)
 def test_setup():
-    db.company.truncate()
-    db.transaction.truncate()
+    s.initialize_database(
+        21,                 # Number of companies
+        my_company_values,  # Initial values
+        my_company_names,   # Company names
+        my_company_tickers  # Company tickers
+    )
+    companies = s.load_companies()
+    a, b, c, d = list(companies.keys())[:4]
     db.user.truncate()
     user_id = db.user.insert()
-
-    a = db.company.insert(company_name='AAA', company_symbol='A', current_stock_value=10)
-    b = db.company.insert(company_name='BBB', company_symbol='B', current_stock_value=50)
-    c = db.company.insert(company_name='CCC', company_symbol='C', current_stock_value=100)
-    d = db.company.insert(company_name='DDD', company_symbol='D', current_stock_value=500)
 
     db.transaction.insert(company_id=a, 
                           user_id=user_id, 

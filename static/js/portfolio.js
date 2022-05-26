@@ -25,9 +25,14 @@ let init = (app) => {
         });
     }
 
+    app.to_company = function(ticker) {
+        window.location.href = "../company/" + ticker;
+    }
+
     // This contains all the methods
     app.methods = {
         get_holdings : app.get_holdings,
+        to_company : app.to_company,
     };
 
     // This creates the Vue instance

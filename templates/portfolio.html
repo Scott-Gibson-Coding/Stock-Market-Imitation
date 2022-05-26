@@ -36,7 +36,11 @@
                   <td>{{h.shares}}</td>
                   <td>{{h.price}}</td>
                   <td>{{h.bought_price}}</td>
-                  <td>sell</td>
+                  <td>
+                     <button class="button is-warning" @click="to_company(h.ticker)">
+                        <i class="fa fa-external-link"></i>
+                     </button>
+                  </td>
                </tr>
             </tbody>
          </table>

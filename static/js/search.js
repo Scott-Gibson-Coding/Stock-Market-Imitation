@@ -1,5 +1,6 @@
 // This will be the object that will contain the Vue attributes
 // and be used to initialize it.
+// This is in main
 let app = {};
 
 
@@ -10,6 +11,7 @@ let init = (app) => {
     // This is the Vue data.
     app.data = {
         proof: "Search Proof",
+        company_rows: [],
     };
 
     app.enumerate = (a) => {
@@ -33,12 +35,17 @@ let init = (app) => {
     });
 
     app.init = () => {
-        // Put here any initialization code
+        app.vue.company_rows.push({
+            company_name: "Apple",
+            company_symbol: "AAPL"
+        })
+        console.log("init")
+        console.log(app.vue.company_rows)
     };
 
     // Call to the initializer
     app.init();
 };
-
+console.log("startup")
 // Initialize the app object
 init(app);

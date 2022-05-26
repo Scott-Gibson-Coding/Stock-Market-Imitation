@@ -26,30 +26,14 @@
                         <th>Another thing</th>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Apple</td>
-                            <td>123</td>
-                            <td>stuff</td>
-                            <td>stuff</td>
+                        <tr v-for = "r in company_rows">
+                            <td>
+                                <p>{{r.company_name}}</p>
+                                <p>{{r.company_symbol}}</p>
+                            </td>
                         </tr>
-                        <tr>
-                            <td>Apple</td>
-                            <td>123</td>
-                            <td>stuff</td>
-                            <td>stuff</td>
-                        </tr>
-                        <tr>
-                            <td>Apple</td>
-                            <td>123</td>
-                            <td>stuff</td>
-                            <td>stuff</td>
-                        </tr>
-                        <tr>
-                            <td>Apple</td>
-                            <td>123</td>
-                            <td>stuff</td>
-                            <td>stuff</td>
-                        </tr>
+                       
+
                     </tbody>
                 </table>
             </div>
@@ -69,9 +53,10 @@
         </div>
         
     </div>
-</section>
+</div>
 
 [[block page_scripts]]
 <!-- Loads the search-specific js for Vue -->
+
 <script src="js/search.js"></script>
 [[end]]

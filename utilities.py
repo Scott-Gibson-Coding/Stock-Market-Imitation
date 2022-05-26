@@ -39,3 +39,11 @@ def get_user_balance(user_id = None):
     if user is None:
         return None
     return user.user_balance
+
+def get_avg_bought_price(user_id, company_id):
+    query = (db.transaction.company_id == company_id) & (db.transaction.user_id == user_id)
+    sum, count = 0, 0
+    for r in db(query).select():
+        count += r.count
+        sum += r.count * r.value_per_share
+    return sum / count

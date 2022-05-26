@@ -31,6 +31,8 @@ from .common import db, session, T, cache, auth, logger, authenticated, unauthen
 from py4web.utils.url_signer import URLSigner
 from .models import get_user_email
 
+from .utilities import get_portfolio, get_avg_bought_price
+
 url_signer = URLSigner(session)
 
 @action('index')
@@ -41,7 +43,18 @@ def index():
 @action('portfolio')
 @action.uses('portfolio.html', db, auth)
 def portfolio():
-    return {}
+    return {'get_holdings_url' : URL('get_holdings')}
+
+@action('get_holdings', method='POST')
+@action.uses(db, auth.user)
+def get_holdings():
+    user_id = auth.get_user().get('id')
+    holdings = get_portfolio(user_id)['holdings']
+    holdings = [{'company_name' : db.company[k].company_name, 
+                 'shares' : v,
+                 'price' : db.company[k].current_stock_value,
+                 'bought_price' : get_avg_bought_price(user_id, k)} for k,v in holdings.items()]
+    return {'holdings' : holdings}
 
 @action('company')
 @action.uses('company.html', db, auth)
@@ -52,3 +65,39 @@ def company():
 @action.uses('search.html', db, auth)
 def search():
     return {}
+
+@action('test_setup')
+@action.uses(db, auth.user)
+def test_setup():
+    db.company.truncate()
+    db.transaction.truncate()
+    db.user.truncate()
+    user_id = db.user.insert()
+
+    a = db.company.insert(company_name='AAA', company_symbol='A', current_stock_value=10)
+    b = db.company.insert(company_name='BBB', company_symbol='B', current_stock_value=50)
+    c = db.company.insert(company_name='CCC', company_symbol='C', current_stock_value=100)
+    d = db.company.insert(company_name='DDD', company_symbol='D', current_stock_value=500)
+
+    db.transaction.insert(company_id=a, 
+                          user_id=user_id, 
+                          transaction_type='buy', 
+                          count=5, 
+                          value_per_share=10)
+    
+    db.transaction.insert(company_id=b, 
+                          user_id=user_id, 
+                          transaction_type='buy', 
+                          count=6, 
+                          value_per_share=50)
+    db.transaction.insert(company_id=c, 
+                          user_id=user_id, 
+                          transaction_type='buy', 
+                          count=7, 
+                          value_per_share=100)
+    db.transaction.insert(company_id=d, 
+                          user_id=user_id, 
+                          transaction_type='buy', 
+                          count=8, 
+                          value_per_share=500)
+    return 'OK'

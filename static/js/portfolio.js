@@ -9,7 +9,7 @@ let init = (app) => {
 
     // This is the Vue data.
     app.data = {
-        proof: "Portfolio Proof",
+        holdings : [],
     };
 
     app.enumerate = (a) => {
@@ -19,10 +19,15 @@ let init = (app) => {
         return a;
     };
 
+    app.get_holdings = function() {
+        axios.post(get_holdings_url, {}).then(function(r) {
+            app.vue.holdings = r.data.holdings;
+        });
+    }
 
     // This contains all the methods
     app.methods = {
-        
+        get_holdings : app.get_holdings,
     };
 
     // This creates the Vue instance
@@ -33,7 +38,7 @@ let init = (app) => {
     });
 
     app.init = () => {
-        // Put here any initialization code
+        app.get_holdings();
     };
 
     // Call to the initializer

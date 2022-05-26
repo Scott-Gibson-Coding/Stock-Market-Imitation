@@ -10,23 +10,44 @@
    <div class="columns">
       <div class="column is-half">
          <div class="columns is-centered">
-            <div class="column is-two-thirds">
+            <div class="column is-three-fifths">
                <div class="title">Personal Performance vs S&P500</div>
-               
             </div>
          </div>
+         
       </div>
       <div class="column">
          <div class="columns is-centered">
-            <div class="column is-two-thirds">
+            <div class="column is-one-third">
                <div class="title">Position List</div>
             </div>
          </div>
+         <table class="table is-fullwidth is-striped">
+            <thead>
+               <th>Company</th>
+               <th>Shares</th>
+               <th>Price</th>
+               <th>Bought Price</th>
+               <th></th>
+            </thead>
+            <tbody>
+               <tr v-for="h in holdings">
+                  <td>{{h.company_name}}</td>
+                  <td>{{h.shares}}</td>
+                  <td>{{h.price}}</td>
+                  <td>{{h.bought_price}}</td>
+                  <td>sell</td>
+               </tr>
+            </tbody>
+         </table>
       </div>
    </div>
 </div>
 
 [[block page_scripts]]
 <!-- Loads the portfolio-specific js for Vue -->
+<script>
+   let get_holdings_url = "[[=XML(get_holdings_url)]]";
+</script>
 <script src="js/portfolio.js"></script>
 [[end]]

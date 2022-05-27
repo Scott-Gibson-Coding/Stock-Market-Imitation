@@ -14,9 +14,15 @@ let init = (app) => {
         sign_up_first_name: "",
         sign_up_last_name: "",
         sign_up_password: "",
+
         // log in fields
         log_in_email: "",
         log_in_password: "",
+
+        // errors
+        log_in_email_error: "", // TODO
+        log_in_password_error: "",
+        log_in_generic_error: "", // in case of unexpected error
     };
 
     app.enumerate = (a) => {
@@ -25,10 +31,17 @@ let init = (app) => {
         a.map((e) => {e._idx = k++;});
         return a;
     };
+
+    app.clear_error_fields = () => {
+        app.vue.log_in_email_error = "";
+        app.vue.log_in_password_error = "";
+        app.vue.log_in_generic_error = "";
+    };
     
     app.login = function() {
+        app.clear_error_fields();
+
         if (app.vue.log_in_email != "" && app.vue.log_in_password != "") {
-            let self = this;
             axios.post(login_url,
                 {
                     email: app.vue.log_in_email,
@@ -38,8 +51,29 @@ let init = (app) => {
                     window.location = index_url;
                 }).catch(function (error) {
                     console.log('an error occured');
-                    console.log(error);
+                    if (error.response) {
+                        error_msg = error.response.data.message;
+                        console.log(error.response.data.message);
+                        if (error_msg === 'Invalid email') {
+                            // TODO
+                            // Do a regex check for [*]@[*].[*]
+                            // then set email error message to
+                            // invalid email syntax
+                        } else if (error_msg === 'Invalid Credentials') {
+                            app.vue.log_in_password_error = 'Wrong Password';
+                        } else {
+                            app.vue.log_in_generic_error = "An Error Occured!";
+                        }
+                    } else {
+                        app.vue.log_in_generic_error = "An Error Occured!";
+                    }
                 });
+        }
+        if (app.vue.log_in_email === "") {
+            app.vue.log_in_email_error = "Please fill out this field!";
+        }
+        if (app.vue.log_in_password === "") {
+            app.vue.log_in_password_error = "Please fill out this field!";
         }
     };
 

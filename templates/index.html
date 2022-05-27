@@ -10,10 +10,6 @@
         display: none;
     }
 
-    #index_navbar {
-        min-height: 20vh !important;
-    }
-
     [index] {
         background-color: rgb(245, 245, 255);
         width: 90vw;
@@ -88,16 +84,31 @@
                         <input class="input is-rounded is-link" type="email" placeholder="email" 
                             v-model="log_in_email" required>
                     </div>
+                    <p class="help is-danger pl-3" v-if="log_in_email_error">
+                        {{log_in_email_error}}
+                    </p>
                 </div>
                 <div class="field">
                     <div class="control">
                         <input class="input is-rounded is-link" type="password" 
                             v-model="log_in_password" required>
                     </div>
+                    <p class="help is-danger pl-3" v-if="log_in_password_error">
+                        {{log_in_password_error}}
+                    </p>
                 </div>
             </form>
-            <button class="button is-rounded is-medium is-dark is-outlined mt-3"
-                @click="login">Log In</button>
+            <div class="level">
+                <div class="level-left">
+                    <div class="level-item">
+                        <button class="button is-rounded is-medium is-dark is-outlined mt-3"
+                            @click="login">Log In</button>
+                    </div>
+                    <div class="level-item">
+                        <p class="help is-danger is-size-5">{{log_in_generic_error}}</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     [[else:]]

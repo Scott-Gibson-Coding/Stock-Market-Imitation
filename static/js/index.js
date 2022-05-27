@@ -37,37 +37,45 @@ let init = (app) => {
         app.vue.log_in_password_error = "";
         app.vue.log_in_generic_error = "";
     };
+
+    // checks email syntax and returns a boolean
+    app.check_email = (email) => {
+        const re = /^.+@.+\..+$/;
+        return email.match(re) ? email.match(re).length === 1 : false;
+    }
     
     app.login = function() {
         app.clear_error_fields();
+        
 
         if (app.vue.log_in_email != "" && app.vue.log_in_password != "") {
-            axios.post(login_url,
-                {
-                    email: app.vue.log_in_email,
-                    password: app.vue.log_in_password,
-                }).then(function (response) {
-                    console.log('login attempt successful');
-                    window.location = index_url;
-                }).catch(function (error) {
-                    console.log('an error occured');
-                    if (error.response) {
-                        error_msg = error.response.data.message;
-                        console.log(error.response.data.message);
-                        if (error_msg === 'Invalid email') {
-                            // TODO
-                            // Do a regex check for [*]@[*].[*]
-                            // then set email error message to
-                            // invalid email syntax
-                        } else if (error_msg === 'Invalid Credentials') {
-                            app.vue.log_in_password_error = 'Wrong Password';
+            if (app.check_email(app.vue.log_in_email)) {
+                axios.post(login_url,
+                    {
+                        email: app.vue.log_in_email,
+                        password: app.vue.log_in_password,
+                    }).then(function (response) {
+                        console.log('login attempt successful');
+                        window.location = index_url;
+                    }).catch(function (error) {
+                        console.log('an error occured');
+                        if (error.response) {
+                            error_msg = error.response.data.message;
+                            console.log(error.response.data.message);
+                            if (error_msg === 'Invalid email') {
+                                app.vue.log_in_email_error = "Invalid Email";
+                            } else if (error_msg === 'Invalid Credentials') {
+                                app.vue.log_in_password_error = 'Wrong Password';
+                            } else {
+                                app.vue.log_in_generic_error = "An Error Occured!";
+                            }
                         } else {
                             app.vue.log_in_generic_error = "An Error Occured!";
                         }
-                    } else {
-                        app.vue.log_in_generic_error = "An Error Occured!";
-                    }
-                });
+                    });
+            } else {
+                app.vue.log_in_email_error = "Invalid Email Syntax"
+            }
         }
         if (app.vue.log_in_email === "") {
             app.vue.log_in_email_error = "Please fill out this field!";

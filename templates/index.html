@@ -44,31 +44,56 @@
                         <span class="icon is-left">
                             <i class="fa fa-envelope-o"></i>
                         </span>
-                        <input class="input is-rounded is-link" placeholder="email" 
-                            v-model="sign_up_email" required>
+                        <input v-model="signup_email" class="input is-rounded is-link" 
+                        type="text" placeholder="email" :class="{
+                            'is-danger': signup_email_error,
+                            'is-success': signup_email_valid,
+                        }"
+                        @blur="check_signup_email()">
                     </div>
+                    <p class="help is-danger pl-3">
+                        {{signup_email_error}}
+                    </p>
                 </div>
                 <div class="field">
                     <div class="control">
-                        <input class="input is-rounded is-link" type="text" placeholder="first name" 
-                            v-model="sign_up_first_name" required>
+                        <input v-model="signup_first_name" class="input is-rounded is-link" 
+                        type="text" placeholder="first name" :class="{'is-danger': signup_first_name_error}">
                     </div>
+                    <p class="help is-danger pl-3">
+                        {{signup_first_name_error}}
+                    </p>
                 </div>
                 <div class="field">
                     <div class="control">
-                        <input class="input is-rounded is-link" type="text" placeholder="last name" 
-                            v-model="sign_up_last_name" required>
+                        <input v-model="signup_last_name" class="input is-rounded is-link" 
+                        type="text" placeholder="last name" :class="{'is-danger': signup_last_name_error}">
                     </div>
+                    <p class="help is-danger pl-3">
+                        {{signup_last_name_error}}
+                    </p>
                 </div>
                 <div class="field">
                     <div class="control">
-                        <input class="input is-rounded is-link" type="password"
-                            v-model="sign_up_password" required>
+                        <input v-model="signup_password" class="input is-rounded is-link" 
+                        type="password" :class="{'is-danger': signup_password_error}">
                     </div>
+                    <p class="help is-danger pl-3">
+                        {{signup_password_error}}
+                    </p>
                 </div>
             </form>
-            <button class="button is-rounded is-medium is-dark is-outlined mt-3"
-                @click="signup">Sign Up</button>
+            <div class="level">
+                <div class="level-left">
+                    <div class="level-item">
+                        <button class="button is-rounded is-medium is-dark is-outlined mt-3"
+                        @click="signup">Sign Up</button>
+                    </div>
+                    <div class="level-item">
+                        <p class="help is-danger is-size-5">{{signup_generic_error}}</p>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="column">
             <div class="title">
@@ -81,22 +106,20 @@
                         <span class="icon is-left">
                             <i class="fa fa-envelope-o"></i>
                         </span>
-                        <input class="input is-rounded is-link" placeholder="email" 
-                        :class="{'is-danger': log_in_email_error}"
-                            v-model="log_in_email" required>
+                        <input v-model="login_email" class="input is-rounded is-link" placeholder="email" 
+                        :class="{'is-danger': login_email_error}">
                     </div>
-                    <p class="help is-danger pl-3" v-if="log_in_email_error">
-                        {{log_in_email_error}}
+                    <p class="help is-danger pl-3">
+                        {{login_email_error}}
                     </p>
                 </div>
                 <div class="field">
                     <div class="control">
-                        <input class="input is-rounded is-link" type="password" 
-                        :class="{'is-danger': log_in_password_error}"
-                            v-model="log_in_password" required>
+                        <input v-model="login_password" class="input is-rounded is-link" type="password" 
+                        :class="{'is-danger': login_password_error}">
                     </div>
-                    <p class="help is-danger pl-3" v-if="log_in_password_error">
-                        {{log_in_password_error}}
+                    <p class="help is-danger pl-3">
+                        {{login_password_error}}
                     </p>
                 </div>
             </form>
@@ -107,7 +130,7 @@
                             @click="login">Log In</button>
                     </div>
                     <div class="level-item">
-                        <p class="help is-danger is-size-5">{{log_in_generic_error}}</p>
+                        <p class="help is-danger is-size-5">{{login_generic_error}}</p>
                     </div>
                 </div>
             </div>
@@ -142,7 +165,8 @@
 <script>
     let index_url = "[[=XML(URL())]]"
     let login_url = "[[=XML(login_url)]]";
-    let sign_up_url = "[[=XML(sign_up_url)]]";
+    let signup_url = "[[=XML(signup_url)]]";
+    let verify_email_url = "[[=XML(verify_email_url)]]";
 </script>
 <script src="js/index.js"></script>
 [[end]]

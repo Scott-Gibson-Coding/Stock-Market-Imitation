@@ -53,9 +53,19 @@ def index():
     return dict(
         user=user,
         login_url = URL('auth/api/login'),
-        sign_up_url = URL('auth/api/register'),
+        signup_url = URL('auth/api/register'),
+        verify_email_url = URL('verify_email'),
     )
 
+# returns True if the email is already in the auth_user table
+@action('verify_email')
+@action.uses(db)
+def verify_email():
+    email = request.params.get('email')
+    user = db(db.auth_user.email == email).select().first()
+    return dict(
+        exists = (user != None),
+    )
 
 
 @action('portfolio')

@@ -1,3 +1,6 @@
+// Import Plotter
+import {Plotter} from "./Plotter.js";
+
 // This will be the object that will contain the Vue attributes
 // and be used to initialize it.
 let app = {};
@@ -22,26 +25,10 @@ let init = (app) => {
     app.plot_history = function(){
         // Get stock values of the first company (test)
         axios.get(get_history_url).then(function(response){
-            company_name = response.data.name;
-            stock_history = response.data.stock_history;
-            // Hook a google linechart to the chart_div element
-            let chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-            // Create a google data table to plot in the line chart
-            let data = new google.visualization.DataTable();
-            // Columns
-            data.addColumn('number', 'Time');
-            data.addColumn('number', 'Value');
-            // Rows
-            data.addRows(stock_history.length);
-            for (let i = 0; i < stock_history.length; i++){
-                data.setCell(i, 0, i);
-                data.setCell(i, 1, stock_history[i]);
-            }
-            let options = {
-                title: 'Stock History for ' + company_name,
-            };
-            // Draw the chart
-            chart.draw(data, options);
+            let company_name = response.data.name;
+            let stock_history = response.data.stock_history;
+            let dates = response.data.dates;
+            plotter.plot_stock_history(dates, stock_history, "chart_div", company_name);
         });
     }
 
@@ -64,11 +51,8 @@ let init = (app) => {
     // Call to the initializer
     app.init();
 };
+// Initialize plotter
+let plotter = new Plotter();
 
 // Initialize the app object
 init(app);
-
-// Load google chart packages
-google.charts.load('current', {'packages':['corechart']});
-// One loaded, plot the initial history
-google.charts.setOnLoadCallback(app.plot_history);

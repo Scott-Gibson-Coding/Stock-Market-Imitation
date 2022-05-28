@@ -69,12 +69,16 @@ def chart():
 @action('get_stock_history')
 @action.uses(db, url_signer.verify())
 def get_stock_history():
+    import datetime
     # Load companies. For the demo we just use the first one.
     companies = Simulator.load_companies()
     k = list(companies.keys())[0]
     # Get the stock history of the first company (list)
     hist = Simulator.get_stock_history(k)
+    now = datetime.datetime.utcnow()
+    times = [now + datetime.timedelta(seconds=i) for i in range(len(hist))]
     return dict(
         name = companies[k]['company_name'],
         stock_history = hist,
+        dates=times,
     )

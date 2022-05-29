@@ -1,0 +1,38 @@
+[[extend 'layout.html']]
+
+<style>
+  [v-cloak] {
+    display: none;
+  }
+</style>
+
+<div class="section mx-6 px-3" id="vue-target" v-cloak>
+  <h1 class="title">Forum</h1>
+  <!-- Show only if currently adding a post -->
+  <div v-if="adding_topic" class="block">
+    <!-- Add new post form -->
+    <div class="control block">
+      <textarea v-model="current_topic" class="textarea" placeholder="Enter a topic here..." rows="4"></textarea>
+    </div>
+    <button class="button is-primary block" @click="save_topic()">Post</button>
+    <button class="button is-warning block" @click="cancel_topic()">Cancel</button>
+  </div>
+  <!-- Show only if NOT adding a post (add button)-->
+  <div v-if="!adding_topic" class="block">
+    <button class="button is-success" @click="start_new_topic()">
+      <span class="icon">
+        <i class="fa fa-lg fa-plus"></i>
+      </span>
+    </button>
+  </div>
+  <!-- Display the posts below -->
+</div>
+
+
+[[block page_scripts]]
+<!-- Loads the index-specific js for Vue -->
+<script>
+  let add_topic_url = "[[=XML(add_topic_url)]]";
+</script>
+<script src="js/forum.js"></script>
+[[end]]

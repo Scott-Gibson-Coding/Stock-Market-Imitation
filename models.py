@@ -53,10 +53,6 @@ db.define_table(
 # Transaction table to hold info about all the transactions taking place
 # We can see what a user owns by iterating through transactions and noting
 # what they currently have and what they used to have.
-# I.e. if stock_sell_date has a value or a date before the current date, depending
-# on how we define it.
-# Since stock_sell_value and stock_sell_date are initially empty, we should have a convention
-# which can be noticed.
 db.define_table(
     'transaction',
     Field('company_id', 'reference company'), # The company whose stock this is
@@ -66,6 +62,31 @@ db.define_table(
     Field('value_per_share', type='float', requires=IS_FLOAT_IN_RANGE(0, None)),
     Field('transaction_date', 'datetime', default=get_time)
 )
+
+# Table to hold the forum topics
+db.define_table(
+    'forum_topic',
+    Field('topic', requires=IS_NOT_EMPTY()),
+)
+
+# Table to hold forum posts
+db.define_table(
+    'forum_post',
+    Field('user_id', 'reference auth_user'),
+    Field('topic_id', 'reference forum_topic'),
+    Field('post_content', requires=IS_NOT_EMPTY()),
+    Field('post_date', 'datetime', default=get_time)
+)
+
+# Table to hold forum post comments
+db.define_table(
+    'forum_comment',
+    Field('user_id', 'reference auth_user'),
+    Field('post_id', 'reference forum_post'),
+    Field('comment', requires=IS_NOT_EMPTY()),
+    Field('comment_date', 'datetime', default=get_time)
+)
+
 
 # TODO: Make fields unreadable and unwritable if they would appear in forms...
 

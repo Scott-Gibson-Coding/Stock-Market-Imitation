@@ -145,3 +145,24 @@ def search_data():
     
     return dict(company_rows = company_rows)
 
+# Displays categories
+@action('forum')
+@action.uses('forum.html', db, auth)
+def forum_topics():
+    return dict(
+
+    )
+
+# Displays posts within a category
+@action('forum/<cat:int>')
+@action.uses('forum_cat', db, auth)
+def forum_cat(cat = None):
+    assert cat is not None
+    return dict()
+
+# Displays individual post with comments
+@action('forum/<post:int>')
+@action.uses('forum_post.html', db, auth)
+def forum_post(post = None):
+    assert post is not None
+    return dict()

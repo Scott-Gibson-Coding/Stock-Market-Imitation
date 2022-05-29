@@ -38,6 +38,7 @@ db.define_table(
     Field('company_name'),
     Field('company_symbol'),
     Field('current_stock_value', 'float', default=0.),
+    Field('changes', 'float', default=0.),
     Field('latest_update', 'datetime', default=get_time),
 )
 

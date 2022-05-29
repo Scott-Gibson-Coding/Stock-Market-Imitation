@@ -91,8 +91,8 @@ class StockSimulator:
         assert len(names) == num_companies, "The number of companies must equal the number of assigned names."
         assert len(symbols) == num_companies, "The number of companies must equal the number of assigned symbols."
         # Empty db
-        db(db.company).delete()
-        db(db.stock_history).delete()
+        db.company.truncate()
+        db.stock_history.truncate()
         for i in range(num_companies):
             # Add company to db
             id = db.company.insert(

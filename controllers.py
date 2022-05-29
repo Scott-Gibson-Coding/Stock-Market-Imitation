@@ -154,15 +154,15 @@ def forum_topics():
     )
 
 # Displays posts within a category
-@action('forum/<cat:int>')
-@action.uses('forum_cat', db, auth)
-def forum_cat(cat = None):
-    assert cat is not None
+@action('forum/<cat_id:int>')
+@action.uses('forum_cat.html', db, auth)
+def forum_cat(cat_id = None):
+    assert cat_id is not None
     return dict()
 
 # Displays individual post with comments
-@action('forum/<post:int>')
+@action('forum_post/<post_id:int>')
 @action.uses('forum_post.html', db, auth)
-def forum_post(post = None):
-    assert post is not None
+def forum_post(post_id = None):
+    assert post_id is not None
     return dict()

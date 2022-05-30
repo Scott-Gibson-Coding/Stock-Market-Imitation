@@ -1,3 +1,6 @@
+// Import Plotter
+import { Plotter } from "./Plotter.js";
+
 // This will be the object that will contain the Vue attributes
 // and be used to initialize it.
 let app = {};
@@ -12,9 +15,9 @@ let init = (app) => {
         co_name: "",
         co_ticker: "",
         co_price: 0,
+        date: "",
         co_change: 0,
         co_pct_change: 0,
-        date: "",
         is_green: false,
         is_red: false,
         is_flat: false,
@@ -27,6 +30,19 @@ let init = (app) => {
         let k = 0;
         a.map((e) => {e._idx = k++;});
         return a;
+    };
+
+    app.plot_history = function(co_id, co_name) {
+        // Get stock values of the company
+        axios.post(get_history_url, {
+            co_id: co_id,
+            co_name: co_name
+        }).then(function(response) {
+            let company_name = response.data.name;
+            let stock_history = response.data.stock_history;
+            let dates = response.data.dates;
+            plotter.plot_stock_history(dates, stock_history, "chart_div", company_name);
+        });
     };
 
     // Determine color of price
@@ -71,6 +87,7 @@ let init = (app) => {
         refresh_quote: app.refresh_quote,
         show_buy_menu: app.show_buy_menu,
         show_sell_menu: app.show_sell_menu,
+        plot_history: app.plot_history,
     };
 
     // This creates the Vue instance
@@ -82,11 +99,38 @@ let init = (app) => {
 
     app.init = () => {
         // Put here any initialization code
+        let company_path = location.pathname;
+        let my_company = "";
+        // If no company was provided, the path will be 31 chars: /Stock-Market-Imitation/company
+        if (company_path.length == 31) {
+            my_company = "^GSPC";
+        }
+        // A company was provided, so take the substring after: /Stock-Market-Imitation/company/...
+        else {
+            my_company = company_path.substring(32);
+        }
+        // Get the company information
+        axios.post(load_company_url, {co_ticker: my_company})
+            .then(function (response) {
+                app.vue.co_name = response.data.co_name;
+                app.vue.co_ticker = response.data.co_ticker;
+                app.vue.co_price = response.data.co_price;
+                app.vue.date = response.data.date;
+                app.vue.co_change = response.data.co_change;
+                app.vue.co_pct_change = response.data.co_pct_change;
+            })
+            // Now get the color
+            .then(() => {
+                app.vue.determine_color(app.vue.co_change);
+            });
     };
 
     // Call to the initializer
     app.init();
 };
+
+// Initialize plotter
+let plotter = new Plotter();
 
 // Initialize the app object
 init(app);

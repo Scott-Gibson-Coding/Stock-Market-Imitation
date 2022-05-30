@@ -37,10 +37,10 @@
                <!-- Within the selected time period: green if up, red if down, grey if unchanged -->
                <div class="is-size-4"
                     :class="{'has-text-success': is_green, 'has-text-danger': is_red, 'has-text-grey': is_flat}">
-                  <span v-if="is_green">+</span>[[=co_change]]
-                  (<span v-if="is_green">+</span>[[=co_pct_change]]%)
+		       <span v-if="is_green">+</span>{{co_change}}
+		       (<span v-if="is_green">+</span>{{co_pct_change}}%)
                </div>
-               <div class="is-size-6">Price as of: [[=date]] UTC</div>
+	       <div class="is-size-6">Price as of: {{date}} EST</div>
             </div>
 
             <!-- price chart -->

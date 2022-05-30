@@ -53,8 +53,12 @@ let init = (app) => {
         axios.post(company_refresh_url, {
             co_id: co_id
         }).then(function (response) {
-            app.vue.co_price = response.data.companies['current_stock_value'];
-        });
+            app.vue.co_price = response.data.co_price;
+            app.vue.co_change = response.data.co_change;
+	    app.vue.co_pct_change = response.data.co_pct_change;
+	    app.vue.date = response.data.date
+	    app.determine_color(app.vue.co_change)
+	});
     };
 
     app.show_buy_menu = function(flag) {

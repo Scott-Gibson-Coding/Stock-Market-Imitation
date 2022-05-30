@@ -88,6 +88,7 @@ def company(ticker='^GSPC'):
     #   sqlite3.OperationalError: database is locked
     companies = s.load_companies()
     my_company = None
+    print(companies)
     for c in companies.values():
         if c['company_symbol'] == ticker:
             my_company = c
@@ -100,7 +101,7 @@ def company(ticker='^GSPC'):
     co_price = my_company['current_stock_value']
     co_change = my_company['changes'] 
     co_pct_change = round((co_change / co_price) * 100, 2)
-    current_date = my_company['latest_update'].strftime("%m/%d/%Y, %H:%M:%S")  # TODO Should use US Eastern time in simulator
+    current_date = my_company['latest_update'].strftime("%m/%d/%Y, %H:%M:%S") 
     return dict(
         co_id=co_id,
         co_name=co_name,
@@ -122,7 +123,24 @@ def company_refresh():
     # TODO cannot change co_change or co_pct_change in simulator, and not saved in db
     #   Will need to use historical data to calculate change based on the user's selected time period
     my_company = s.load_companies(co_id)[co_id]
-    return dict(companies=my_company)
+
+    co_id = my_company['id']
+    co_name = my_company['company_name']
+    co_ticker = my_company['company_symbol']
+    co_price = my_company['current_stock_value']
+    co_change = my_company['changes'] 
+    co_pct_change = round((co_change / co_price) * 100, 2)
+    current_date = my_company['latest_update'].strftime("%m/%d/%Y, %H:%M:%S") 
+    return dict(
+        co_id=co_id,
+        co_name=co_name,
+        co_ticker=co_ticker,
+        co_price=co_price,
+        co_change=co_change,
+        co_pct_change=co_pct_change,
+        date=current_date,
+        company_refresh_url=URL('company_refresh'),
+    )
 
 
 @action('search')

@@ -74,6 +74,7 @@ db.define_table(
     'forum_post',
     Field('user_id', 'reference auth_user'),
     Field('topic_id', 'reference forum_topic'),
+    Field('post_title', requires=IS_NOT_EMPTY()),
     Field('post_content', requires=IS_NOT_EMPTY()),
     Field('post_date', 'datetime', default=get_time)
 )
@@ -86,6 +87,16 @@ db.define_table(
     Field('comment', requires=IS_NOT_EMPTY()),
     Field('comment_date', 'datetime', default=get_time)
 )
+
+# Table to hold reactions to comments
+db.define_table(
+    'reaction_comment',
+    Field('comment_id', 'reference forum_comment'),
+    Field('user_id', 'reference auth_user'),
+    Field('reaction', 'integer', default=0),
+)
+
+# Reactions to posts?
 
 
 # TODO: Make fields unreadable and unwritable if they would appear in forms...

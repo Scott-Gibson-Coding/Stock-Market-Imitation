@@ -1,29 +1,87 @@
 [[extend 'layout.html']]
 
 <style>
-  [v-cloak] {
-    display: none;
-  }
+    body {
+        height: 100vh;
+        background-color: rgb(245, 255, 245);
+    }
 </style>
 
-<div class="section mx-6 px-3" id="vue-target" v-cloak>
-  <h1 class="title">Forum</h1>
-  <!-- Show only if currently adding a post -->
-  <div v-if="adding_topic" class="block">
-    <!-- Add new post form -->
-    <div class="control block">
-      <textarea v-model="current_topic" class="textarea" placeholder="Enter a topic here..." rows="4"></textarea>
+
+<div class="section mx-6 px-3" page>
+    <div class="columns">
+        <!-- Message introducing user to forum page -->
+        <div class="column is-4">
+            <div class="message is-success">
+                <div class="message-header is-size-4">
+                    Forum Page
+                </div>
+                <div class="message-body is-size-5">
+                    Click one of the topics to the right to view posts in that category.
+                </div>
+            </div>
+        </div>
+
+        <!-- Current list of topics in alphabetical order -->
+        <div class="column">
+            <div class="notification is-success">
+                <div class="level">
+                    <div class="level-left">
+                        <p class="title is-4">Topic A</p>
+                    </div>
+                    <div class="level-right">
+                        <a class="button is-info" href="[[=URL('forum_cat', 'Hello')]]">
+                            View Topic
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="notification is-success">
+                <div class="level">
+                    <div class="level-left">
+                        <p class="title is-4">Topic B</p>
+                    </div>
+                    <div class="level-right">
+                        <a class="button is-info" href="[[=URL('forum_cat', 'Hello')]]">
+                            View Topic
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="notification is-success">
+                <div class="level">
+                    <div class="level-left">
+                        <p class="title is-4">Topic C</p>
+                    </div>
+                    <div class="level-right">
+                        <a class="button is-info" href="[[=URL('forum_cat', 'Hello')]]">
+                            View Topic
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="notification is-success">
+                <div class="level">
+                    <div class="level-left">
+                        <p class="title is-4">Topic D</p>
+                    </div>
+                    <div class="level-right">
+                        <a class="button is-info" href="[[=URL('forum_cat', 'Hello')]]">
+                            View Topic
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add topic button -->
+            <a class="button is-primary is-large is-pulled-right" href="=[[URL('forum_add_topic')]]">
+                <span>Add New Topic</span>
+                <span class="icon">
+                    <i class="fa fa-lg fa-plus"></i>
+                </span>
+            </a>
+        </div>
     </div>
-    <button class="button is-primary block" @click="save_topic()">Post</button>
-    <button class="button is-warning block" @click="cancel_topic()">Cancel</button>
-  </div>
-  <!-- Show only if NOT adding a post (add button)-->
-  <div v-if="!adding_topic" class="block">
-    <button class="button is-success" @click="start_new_topic()">
-      <span class="icon">
-        <i class="fa fa-lg fa-plus"></i>
-      </span>
-    </button>
-  </div>
-  <!-- Display the posts below -->
 </div>
+
+

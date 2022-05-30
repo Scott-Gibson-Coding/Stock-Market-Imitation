@@ -153,6 +153,11 @@ def forum_topics():
 
     )
 
+@action('forum_add_topic', method=['GET', 'POST'])
+@action.uses('forum_form.html', db, auth)
+def forum_add_topic():
+    pass
+
 # Displays posts within a category
 @action('forum/<cat_id:int>')
 @action.uses('forum_cat.html', db, auth)

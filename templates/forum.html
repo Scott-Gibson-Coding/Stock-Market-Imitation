@@ -22,12 +22,13 @@
             </div>
         </div>
 
-        <!-- Current list of topics in alphabetical order -->
         <div class="column">
+            <!-- Current list of topics in alphabetical order -->
+            [[for topic in topics:]]
             <div class="notification is-success">
                 <div class="level">
                     <div class="level-left">
-                        <p class="title is-4">Topic A</p>
+                        <p class="title is-4">[[=topic['topic']]]</p>
                     </div>
                     <div class="level-right">
                         <a class="button is-info" href="[[=URL('forum_cat', 'Hello')]]">
@@ -36,45 +37,10 @@
                     </div>
                 </div>
             </div>
-            <div class="notification is-success">
-                <div class="level">
-                    <div class="level-left">
-                        <p class="title is-4">Topic B</p>
-                    </div>
-                    <div class="level-right">
-                        <a class="button is-info" href="[[=URL('forum_cat', 'Hello')]]">
-                            View Topic
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="notification is-success">
-                <div class="level">
-                    <div class="level-left">
-                        <p class="title is-4">Topic C</p>
-                    </div>
-                    <div class="level-right">
-                        <a class="button is-info" href="[[=URL('forum_cat', 'Hello')]]">
-                            View Topic
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="notification is-success">
-                <div class="level">
-                    <div class="level-left">
-                        <p class="title is-4">Topic D</p>
-                    </div>
-                    <div class="level-right">
-                        <a class="button is-info" href="[[=URL('forum_cat', 'Hello')]]">
-                            View Topic
-                        </a>
-                    </div>
-                </div>
-            </div>
+            [[pass]]
 
             <!-- Add topic button -->
-            <a class="button is-primary is-large is-pulled-right" href="=[[URL('forum_add_topic')]]">
+            <a class="button is-primary is-large is-pulled-right" href="[[=URL('forum_add_topic')]]">
                 <span>Add New Topic</span>
                 <span class="icon">
                     <i class="fa fa-lg fa-plus"></i>

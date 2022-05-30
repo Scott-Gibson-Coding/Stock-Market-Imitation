@@ -26,6 +26,7 @@ Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app w
 """
 
 from py4web import action, request, abort, redirect, URL
+from py4web.utils.form import Form, FormStyleBulma
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from py4web.utils.url_signer import URLSigner
@@ -148,15 +149,27 @@ def search_data():
 # Displays categories
 @action('forum')
 @action.uses('forum.html', db, auth)
-def forum_topics():
+def forum():
+    # query forum_topic db for topics in alphabetical order
+    topics = db().select(db.forum_topic.ALL, orderby=db.forum_topic.topic)
     return dict(
-
+        topics=topics
     )
 
 @action('forum_add_topic', method=['GET', 'POST'])
 @action.uses('forum_form.html', db, auth)
 def forum_add_topic():
-    pass
+    form = Form(db.forum_topic, formstyle=FormStyleBulma)
+
+    # handle post request from completed form
+    if form.accepted:
+        redirect(URL('forum'))
+
+    # render Get request form
+    return dict(
+        title='Add New Forum Topic',
+        form=form,
+    )
 
 # Displays posts within a category
 @action('forum/<cat_id:int>')

@@ -40,11 +40,12 @@
                   <span v-if="is_green">+</span>[[=co_change]]
                   (<span v-if="is_green">+</span>[[=co_pct_change]]%)
                </div>
-               <div class="is-size-6">Price as of: [[=date]] UTC</div>
+               <div class="is-size-6">Price as of: {{date}} UTC</div>
             </div>
 
             <!-- price chart -->
-            <img src="https://i.kym-cdn.com/photos/images/newsfeed/001/499/826/2f0.png">
+            <div class="block" id="chart_div"></div>
+            <button class="button" @click="plot_history([[=co_id]], '[[=co_name]]')">Plot</button>
 
             <div class="block has-text-centered">
                Time Scale <a href="">1d, 1w, 1m, 3m, 6m, ytd, 1y, 2y, 5y, all</a>
@@ -153,15 +154,9 @@
 <!-- Loads the company-specific js for Vue -->
 <script>
    let company_refresh_url = "[[=XML(company_refresh_url)]]";
+   let get_history_url = "[[=XML(get_history_url)]]";
+   let load_company_url = "[[=XML(load_company_url)]]";
 </script>
-<script src="js/company.js"></script>
-<script>
-   app.vue.co_name = "[[=co_name]]";
-   app.vue.co_ticker = "[[=co_ticker]]";
-   app.vue.co_price = [[=co_price]];
-   app.vue.co_change = [[=co_change]];
-   app.vue.co_pct_change = [[=co_pct_change]];
-   app.vue.date = "[[=date]]";
-   app.vue.determine_color(app.vue.co_change);
+<script type="module" src="js/company.js">
 </script>
 [[end]]

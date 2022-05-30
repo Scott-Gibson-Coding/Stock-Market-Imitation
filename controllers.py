@@ -114,6 +114,8 @@ def company(ticker='^GSPC'):
         co_pct_change=co_pct_change,
         date=current_date,
         company_refresh_url=URL('company_refresh'),
+        get_history_url=URL('get_stock_history'),
+        load_company_url=URL('load_company'),
     )
 
 
@@ -127,6 +129,45 @@ def company_refresh():
     updated_companies = s.load_companies()
     my_company = updated_companies[co_id]
     return dict(companies=my_company)
+
+
+@action('load_company', method="POST")
+@action.uses(db)
+def load_company():
+    co_ticker = request.json.get('co_ticker')
+    # Get company info from db
+    co = db(db.company.company_symbol == co_ticker).select().first()
+    co_name = co.company_name
+    co_ticker = co.company_symbol
+    co_price = co.current_stock_value
+    date = co.latest_update.strftime("%m/%d/%Y, %H:%M:%S")
+    # Get changes from dictionary
+    co_change = my_company_changes[co_ticker]
+    co_pct_change = round((co_change / co_price) * 100, 2)
+    return dict(co_name=co_name,
+                co_ticker=co_ticker,
+                co_price=co_price,
+                date=date,
+                co_change=co_change,
+                co_pct_change=co_pct_change)
+
+
+@action('get_stock_history', method="POST")
+@action.uses(db)
+def get_stock_history():
+    import datetime
+    # Load given company
+    co_id = request.json.get('co_id')
+    co_name = request.json.get('co_name')
+    # Get stock history
+    hist = s.get_stock_history(co_id)
+    now = datetime.datetime.utcnow()
+    times = [now + datetime.timedelta(seconds=i) for i in range(len(hist))]
+    return dict(
+        name=co_name,
+        stock_history=hist,
+        dates=times,
+    )
 
 
 @action('search')

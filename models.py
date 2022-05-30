@@ -42,15 +42,6 @@ db.define_table(
     Field('latest_update', 'datetime', default=get_time),
 )
 
-# Stock history table to keep track of the history
-# of each company. The id of the entries in the table
-# should provide the order in which the values were generated.
-db.define_table(
-    'stock_history',
-    Field('company_id', 'reference company'),
-    Field('stock_value', 'float'),
-)
-
 # Transaction table to hold info about all the transactions taking place
 # We can see what a user owns by iterating through transactions and noting
 # what they currently have and what they used to have.

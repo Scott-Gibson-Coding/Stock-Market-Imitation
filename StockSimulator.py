@@ -40,7 +40,6 @@ class StockSimulator:
 
         # Empty db
         db.company.truncate()
-        db.stock_history.truncate()
         for s in companies:
             # Add company to db
             id = db.company.insert(
@@ -48,11 +47,6 @@ class StockSimulator:
                 company_symbol = s,
                 current_stock_value = companies[s]['value'],
                 changes = companies[s]['change'],
-            )
-            # Initialize stock history
-            db.stock_history.insert(
-                company_id = id,
-                stock_value = companies[s]['value']
             )
 
     def load_companies(self, id = None):

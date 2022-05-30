@@ -187,6 +187,7 @@ let init = (app) => {
         login: app.login,
         signup: app.signup,
         check_signup_email: app.check_signup_email,
+        handle_enter_key: app.handle_enter_key,
     };
 
     // This creates the Vue instance

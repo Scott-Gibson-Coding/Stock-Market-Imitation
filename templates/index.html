@@ -49,36 +49,39 @@
                             'is-danger': signup_email_error,
                             'is-success': signup_email_valid,
                         }"
-                        @blur="check_signup_email()">
+                        @blur="check_signup_email()"  v-on:keyup.enter="signup">
                     </div>
-                    <p class="help is-danger pl-3">
+                    <p class="help is-danger pl-3 is-size-6">
                         {{signup_email_error}}
                     </p>
                 </div>
                 <div class="field">
                     <div class="control">
                         <input v-model="signup_first_name" class="input is-rounded is-link" 
-                        type="text" placeholder="first name" :class="{'is-danger': signup_first_name_error}">
+                        type="text" placeholder="first name" :class="{'is-danger': signup_first_name_error}"
+                        v-on:keyup.enter="signup">
                     </div>
-                    <p class="help is-danger pl-3">
+                    <p class="help is-danger pl-3 is-size-6">
                         {{signup_first_name_error}}
                     </p>
                 </div>
                 <div class="field">
                     <div class="control">
                         <input v-model="signup_last_name" class="input is-rounded is-link" 
-                        type="text" placeholder="last name" :class="{'is-danger': signup_last_name_error}">
+                        type="text" placeholder="last name" :class="{'is-danger': signup_last_name_error}"
+                        v-on:keyup.enter="signup">
                     </div>
-                    <p class="help is-danger pl-3">
+                    <p class="help is-danger pl-3 is-size-6">
                         {{signup_last_name_error}}
                     </p>
                 </div>
                 <div class="field">
                     <div class="control">
                         <input v-model="signup_password" class="input is-rounded is-link" 
-                        type="password" :class="{'is-danger': signup_password_error}">
+                        type="password" :class="{'is-danger': signup_password_error}" 
+                        v-on:keyup.enter="signup">
                     </div>
-                    <p class="help is-danger pl-3">
+                    <p class="help is-danger pl-3 is-size-6">
                         {{signup_password_error}}
                     </p>
                 </div>
@@ -107,18 +110,18 @@
                             <i class="fa fa-envelope-o"></i>
                         </span>
                         <input v-model="login_email" class="input is-rounded is-link" placeholder="email" 
-                        :class="{'is-danger': login_email_error}">
+                        :class="{'is-danger': login_email_error}" v-on:keyup.enter="login">
                     </div>
-                    <p class="help is-danger pl-3">
+                    <p class="help is-danger pl-3 is-size-6">
                         {{login_email_error}}
                     </p>
                 </div>
                 <div class="field">
                     <div class="control">
                         <input v-model="login_password" class="input is-rounded is-link" type="password" 
-                        :class="{'is-danger': login_password_error}">
+                        :class="{'is-danger': login_password_error}" v-on:keyup.enter="login">
                     </div>
-                    <p class="help is-danger pl-3">
+                    <p class="help is-danger pl-3 is-size-6">
                         {{login_password_error}}
                     </p>
                 </div>

@@ -1,0 +1,29 @@
+[[extend 'layout.html']]
+
+<style>
+    body {
+        min-height: 100vh;
+        background-color: rgb(255, 255, 200);
+    }
+</style>
+
+<div class="section mx-6 px-3">
+    <p class="title is-2">[[=topic]]</p>
+    
+    <!-- Display an add post button -->
+    <a class="button is-primary is-medium block" href="[[=URL('forum_add_post', topic_id)]]">
+        <span>Add Post</span>
+        <span class="icon">
+            <i class="fa fa-lg fa-plus"></i>
+        </span>
+    </a>
+
+    <!-- Display list of posts in reverse chronological order -->
+    [[for post in posts:]]
+    <div class="notification is-light">
+        <p class="is-size-3">[[=post['post_title']]]</p>
+        <p class="is-size-5">[[=post['post_content']]]</p>
+        <p class="pt-3">[[=post['name']]]</p>
+    </div>
+    [[pass]]
+</div>

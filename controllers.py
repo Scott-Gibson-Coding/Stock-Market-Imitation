@@ -81,9 +81,11 @@ def index():
 
 
 @action('portfolio')
-@action.uses('portfolio.html', db, auth)
+@action.uses('portfolio.html', db, auth.user, url_signer)
 def portfolio():
-    return {'get_holdings_url' : URL('get_holdings')}
+    return {'get_holdings_url' : URL('get_holdings'),
+            'get_user_info_url' : URL('get_user_info'),
+            'update_user_profile_url' : URL('update_user_profile', signer=url_signer)}
 
 @action('get_holdings', method='POST')
 @action.uses(db, auth.user)
@@ -96,6 +98,26 @@ def get_holdings():
                  'price' : c.current_stock_value,
                  'bought_price' : get_avg_bought_price(user_id, k)} for k,v in holdings.items()]
     return {'holdings' : holdings}
+
+@action('get_user_info', method='POST')
+@action.uses(db, auth.user)
+def get_user_info():
+    user_id = auth.get_user().get('id')
+    fn = auth.get_user().get('first_name')
+    ln = auth.get_user().get('last_name')
+    user = db(db.user.user_id == user_id).select().first()
+    return {'first_name' : fn, 'last_name' : ln, 'balance' : user.user_balance, 'pfp' : user.pfp}
+
+@action('update_user_profile', method='POST')
+@action.uses(db, auth.user, url_signer.verify())
+def update_user_profile():
+    fn = request.json.get('first_name')
+    ln = request.json.get('last_name')
+    pfp = request.json.get('pfp')
+    id = auth.get_user().get('id')
+    db(db.auth_user.id == id).update(first_name=fn, last_name=ln)
+    db(db.user.user_id == id).update(pfp=pfp)
+    return 'OK'
 
 # If no ticker provided, default to S&P 500
 # For now, these companies are available (go to /company/ticker):
@@ -169,7 +191,7 @@ def test_setup():
     companies = s.load_companies()
     a, b, c, d = list(companies.keys())[:4]
     db.user.truncate()
-    user_id = db.user.insert()
+    user_id = db.user.insert(user_id=auth.get_user().get('id'))
 
     db.transaction.insert(company_id=a, 
                           user_id=user_id, 

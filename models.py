@@ -27,7 +27,8 @@ def get_time():
 db.define_table(
     'user',
     Field('user_balance', 'float', default=0.),
-    Field('user_email', default=get_user_email),
+    Field('user_id', 'reference auth_user'),
+    Field('pfp', 'text'),
 )
 
 # Company table for information about companies

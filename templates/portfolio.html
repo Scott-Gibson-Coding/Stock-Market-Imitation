@@ -7,51 +7,123 @@
 </style>    
 
 <div class="section pl-6 pr-6" id="vue-target" v-cloak>
-   <div class="columns">
-      <div class="column is-half">
-         <div class="columns is-centered">
-            <div class="column is-three-fifths">
-               <div class="title">Personal Performance vs S&P500</div>
+    <div class="columns">
+        <div class="column is-half">
+            <div class="columns is-centered">
+                <div class="column is-four-fifths">
+                    <div class="title">Personal Performance vs S&P 500</div>
+                </div>
             </div>
-         </div>
-         
-      </div>
-      <div class="column">
-         <div class="columns is-centered">
-            <div class="column is-one-third">
-               <div class="title">Position List</div>
+            
+        </div>
+        <div class="column">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <div class="level-item">
+                            <img :src="user_info.pfp" width="64" height="64">
+                        </div>
+                        <div class="level-item">
+                            <div class="content">
+                                {{user_info.first_name}} {{user_info.last_name}}<br>
+                                Account Balance: <span class="has-text-primary">${{user_info.balance}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="level-right">
+                        <div class="level-item">
+                            <i class="fa fa-pencil fa-lg has-text-info" @click="editing = true"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
-         </div>
-         <table class="table is-fullwidth is-striped">
-            <thead>
-               <th>Company</th>
-               <th>Shares</th>
-               <th>Price</th>
-               <th>Bought Price</th>
-               <th></th>
-            </thead>
-            <tbody>
-               <tr v-for="h in holdings">
-                  <td>{{h.company_name}}</td>
-                  <td>{{h.shares}}</td>
-                  <td>{{h.price}}</td>
-                  <td>{{h.bought_price}}</td>
-                  <td>
-                     <button class="button is-warning" @click="to_company(h.ticker)">
-                        <i class="fa fa-external-link"></i>
-                     </button>
-                  </td>
-               </tr>
-            </tbody>
-         </table>
-      </div>
-   </div>
+            <div class="columns is-centered">
+                <div class="column is-one-third">
+                    <div class="title">Position List</div>
+                </div>
+            </div>
+            <table class="table is-fullwidth is-striped">
+                <thead>
+                    <th>Company</th>
+                    <th>Shares</th>
+                    <th>Price</th>
+                    <th>Bought Price</th>
+                    <th></th>
+                </thead>
+                <tbody>
+                    <tr v-for="h in holdings">
+                        <td>
+                            {{h.company_name}}
+                            <span class="has-text-info" style="font-size: 0.8em;">{{h.ticker}}</span>
+                        </td>
+                        <td>{{h.shares}}</td>
+                        <td>{{h.price}}</td>
+                        <td>{{h.bought_price}}</td>
+                        <td>
+                            <button class="button is-warning" @click="to_company(h.ticker)">
+                                <i class="fa fa-external-link fa-lg"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="modal" :class="{'is-active' : editing}">
+        <div class="modal-background" @click="cancel_profile_edit()"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="columns is-centered column title">Edit Profile</div>
+                <div class="field">
+                    <label class="label">First Name</label>
+                    <div class="control">
+                        <input class="input" type="text" v-model="profile_fn">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Last Name</label>
+                    <div class="control">
+                        <input class="input" type="text" v-model="profile_ln">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Profile Picture</label>
+                    <div v-if="file_url" class="block">
+                        <img :src="file_url" width="128" height="128">
+                    </div>
+                    <div class="file has-name">
+                        <label class="file-label">
+                            <input id="pfp_upload" class="file-input" type="file" accept=".jpg, .jpeg, .png" @change="upload_pfp($event)">
+                            <span class="file-cta">
+                                <span class="file-icon">
+                                    <i class="fa fa-file-image-o fa-2x"></i>
+                                </span>
+                                <span class="file-label">Upload a file...</span>
+                            </span>
+                            <span class="file-name">{{filename}}</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="field is-grouped">
+                    <div class="control">
+                        <button class="button is-link" @click="update_user_profile()">Submit</button>
+                    </div>
+                    <div class="control">
+                        <button class="button is-danger" @click="cancel_profile_edit()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 [[block page_scripts]]
 <!-- Loads the portfolio-specific js for Vue -->
 <script>
-   let get_holdings_url = "[[=XML(get_holdings_url)]]";
+    let get_holdings_url = "[[=XML(get_holdings_url)]]";
+    let get_user_info_url = "[[=XML(get_user_info_url)]]";
+    let update_user_profile_url = "[[=XML(update_user_profile_url)]]";
 </script>
 <script src="js/portfolio.js"></script>
 [[end]]

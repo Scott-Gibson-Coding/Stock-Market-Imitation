@@ -17,7 +17,7 @@
                </span>
                <span>Back to Search</span>
             </a>
-            <a class="button is-warning is-pulled-right" @click="refresh_quote([[=co_id]])">
+            <a class="button is-warning is-pulled-right" @click="refresh_quote('[[=co_ticker]]')">
                <span class="icon">
                   <i class="fa fa-refresh"></i>
                </span>
@@ -45,7 +45,7 @@
 
             <!-- price chart -->
             <div class="block" id="chart_div"></div>
-            <button class="button" @click="plot_history([[=co_id]], '[[=co_name]]')">Plot</button>
+            <button class="button" @click="plot_history('[[=co_ticker]]', '[[=co_name]]')">Plot</button>
 
             <div class="block has-text-centered">
                Time Scale <a href="">1d, 1w, 1m, 3m, 6m, ytd, 1y, 2y, 5y, all</a>

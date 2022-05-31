@@ -49,7 +49,7 @@ class StockSimulator:
                 changes = companies[s]['change'],
             )
 
-    def load_companies(self, id = None):
+    def load_companies(self, current_time = None):
         """
         Return a dictionary of company dictionaries. The key
         for each company dictionary is the company id.
@@ -59,30 +59,40 @@ class StockSimulator:
         """
         self.update_current_time()
         companies = {}
-        if id == None:
-            db_companies = db(db.company).select().as_list()
-        else:
-            db_companies = db(db.company.id == id).select().as_list()
+        db_companies = db(db.company).select().as_list()
 
         for c in db_companies:
             companies[c['id']] = c
         for c in companies: 
-            companies[c]['current_stock_value'] = companies[c]['current_stock_value'] * self.change_function() 
-            companies[c]['changes'] = companies[c]['current_stock_value'] * (self.change_function() - 1)
+            companies[c]['current_stock_value'] = companies[c]['current_stock_value'] * self.change_function(current_time) 
+            companies[c]['changes'] = companies[c]['current_stock_value'] * (self.change_function(current_time) - 1)
             companies[c]['latest_update'] = self.current_time
         return companies
-    
+
+    def load_company(self, symbol, current_time = None):
+        assert(symbol != None)
+
+        self.update_current_time()
+        company = db(db.company.company_symbol == symbol).select().as_list()[0]
+        company['current_stock_value'] = company['current_stock_value'] * self.change_function(current_time) 
+        company['changes'] = company['current_stock_value'] * (self.change_function(current_time) - 1)
+        company['latest_update'] = self.current_time
+        return company
+
+
     def update_current_time(self): 
         """
         This will update the current_time field in the simulator with the EST current time. 
         """
         self.current_time = self.get_time()
 
-    def change_function(self):
+    def change_function(self, current_time = None):
         """
         Deterministic noise for the stocks returns a value ~1.  
         """
-        time_diff = (self.current_time - self.start_time).total_seconds()
+        if current_time == None:
+            current_time = self.current_time
+        time_diff = (current_time - self.start_time).total_seconds()
         #base growth 7% per hour
         
         #change = math.pow(1.07, time_diff / 3600)

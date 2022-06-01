@@ -38,16 +38,8 @@ db.define_table(
     Field('company_name'),
     Field('company_symbol'),
     Field('current_stock_value', 'float', default=0.),
+    Field('changes', 'float', default=0.),
     Field('latest_update', 'datetime', default=get_time),
-)
-
-# Stock history table to keep track of the history
-# of each company. The id of the entries in the table
-# should provide the order in which the values were generated.
-db.define_table(
-    'stock_history',
-    Field('company_id', 'reference company'),
-    Field('stock_value', 'float'),
 )
 
 # Transaction table to hold info about all the transactions taking place

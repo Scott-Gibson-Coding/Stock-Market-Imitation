@@ -36,14 +36,14 @@ from .CompanyData import *
 url_signer = URLSigner(session)
 
 # Get preset company data
-my_companies = preset_companies()
-my_company_values = list(my_companies['values'].values())
-my_company_names = list(my_companies['companies'].values())
-my_company_tickers = list(my_companies['companies'].keys())
-my_company_changes = my_companies['changes']
+s = StockSimulator()
 
-# Initialize StockSimulator to update every 1 second
-s = StockSimulator(1)
+
+@action('load_db')
+@action.uses(db)
+def load_db():
+    s.initialize_database(preset_companies())
+load_db()
 
 
 @action('index')
@@ -56,6 +56,9 @@ def index():
         signup_url = URL('auth/api/register'),
         verify_email_url = URL('verify_email'),
     )
+
+
+
 
 # returns True if the email is already in the auth_user table
 @action('verify_email')
@@ -83,28 +86,37 @@ def portfolio():
 def company(ticker='^GSPC'):
     # TODO temporarily initailizing here since db locks when initializing outside of a page function
     #   sqlite3.OperationalError: database is locked
-    s.initialize_database(
-        21,                 # Number of companies
-        my_company_values,  # Initial values
-        my_company_names,   # Company names
-        my_company_tickers  # Company tickers
-    )
-    companies = s.load_companies()
-    # .
-    my_company = None
-    for c in companies.values():
-        if c['company_symbol'] == ticker:
-            my_company = c
     # If invalid ticker, simply redirect to default company page
-    if not my_company:
-        redirect(URL('company'))
+ 
+    return load_company_data(ticker)
+
+@action('company_refresh', method="POST")
+@action.uses(db, auth)
+def company_refresh():
+    ticker = request.json.get('co_ticker')
+    
+    return load_company_data(ticker)
+
+
+@action('load_company', method="POST")
+@action.uses(db)
+def load_company():
+    ticker = request.json.get('co_ticker')
+    # Get company info from db
+    return load_company_data(ticker)
+
+
+def load_company_data(ticker):
+
+    my_company = s.load_company(ticker)
+    # If invalid ticker, simply redirect to default company page
     co_id = my_company['id']
     co_name = my_company['company_name']
     co_ticker = ticker
     co_price = my_company['current_stock_value']
-    co_change = my_company_changes[ticker]  # TODO should we also store this in db or compute it?
+    co_change = my_company['changes'] 
     co_pct_change = round((co_change / co_price) * 100, 2)
-    current_date = my_company['latest_update'].strftime("%m/%d/%Y, %H:%M:%S")  # TODO Should use US Eastern time in simulator
+    current_date = my_company['latest_update'].strftime("%m/%d/%Y, %H:%M:%S") 
     return dict(
         co_id=co_id,
         co_name=co_name,
@@ -118,51 +130,24 @@ def company(ticker='^GSPC'):
         load_company_url=URL('load_company'),
     )
 
-
-@action('company_refresh', method="POST")
-@action.uses(db, auth)
-def company_refresh():
-    co_id = request.json.get('co_id')
-    s.check_for_updates(co_id)
-    # TODO cannot change co_change or co_pct_change in simulator, and not saved in db
-    #   Will need to use historical data to calculate change based on the user's selected time period
-    updated_companies = s.load_companies()
-    my_company = updated_companies[co_id]
-    return dict(companies=my_company)
-
-
-@action('load_company', method="POST")
-@action.uses(db)
-def load_company():
-    co_ticker = request.json.get('co_ticker')
-    # Get company info from db
-    co = db(db.company.company_symbol == co_ticker).select().first()
-    co_name = co.company_name
-    co_ticker = co.company_symbol
-    co_price = co.current_stock_value
-    date = co.latest_update.strftime("%m/%d/%Y, %H:%M:%S")
-    # Get changes from dictionary
-    co_change = my_company_changes[co_ticker]
-    co_pct_change = round((co_change / co_price) * 100, 2)
-    return dict(co_name=co_name,
-                co_ticker=co_ticker,
-                co_price=co_price,
-                date=date,
-                co_change=co_change,
-                co_pct_change=co_pct_change)
-
-
 @action('get_stock_history', method="POST")
 @action.uses(db)
 def get_stock_history():
     import datetime
     # Load given company
-    co_id = request.json.get('co_id')
+    co_ticker = request.json.get('co_ticker')
     co_name = request.json.get('co_name')
     # Get stock history
-    hist = s.get_stock_history(co_id)
-    now = datetime.datetime.utcnow()
-    times = [now + datetime.timedelta(seconds=i) for i in range(len(hist))]
+    hist = []
+    times = []
+    #We will do 20 steps from start up time to current time by defaulti
+    steps = 200
+    duration = (s.current_time - s.start_time).total_seconds()
+    for i in range(steps + 1):
+        times.append(s.start_time + datetime.timedelta(seconds = i * duration // steps))
+    for t in times:
+        co = s.load_company(co_ticker, t)
+        hist.append(co['current_stock_value'])
     return dict(
         name=co_name,
         stock_history=hist,

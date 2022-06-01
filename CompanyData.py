@@ -1,25 +1,5 @@
 # Using top 20 S&P 500 companies for now while testing
 # https://www.slickcharts.com/sp500
 def preset_companies():
-    return dict(
-        companies={
-            '^GSPC': 'S&P 500', 'AAPL': 'Apple Inc.', 'MSFT': 'Microsoft Corporation', 'AMZN': 'Amazon.com Inc.',
-            'GOOGL': 'Alphabet Inc. Class A', 'GOOG': 'Alphabet Inc. Class C', 'TSLA': 'Tesla Inc',
-            'BRK.B': 'Berkshire Hathaway Inc. Class B', 'JNJ': 'Johnson & Johnson',
-            'UNH': 'UnitedHealth Group Incorporated', 'FB': 'Meta Platforms Inc. Class A', 'NVDA': 'NVIDIA Corporation',
-            'XOM': 'Exxon Mobil Corporation', 'JPM': 'JPMorgan Chase & Co.', 'PG': 'Procter & Gamble Company',
-            'V': 'Visa Inc. Class A', 'CVX': 'Chevron Corporation', 'HD': 'Home Depot Inc.',
-            'MA': 'Mastercard Incorporated Class A', 'PFE': 'Pfizer Inc.', 'ABBV': 'AbbVie Inc.',
-        },
-        values={
-            '^GSPC': 3901.36, 'AAPL': 137.60, 'MSFT': 252.94, 'AMZN': 2159.37, 'GOOGL': 2180.08, 'GOOG': 2187.00,
-            'TSLA': 665.40, 'BRK.B': 304.05, 'JNJ': 177.25, 'UNH': 485.73, 'FB': 193.81, 'NVDA': 166.94, 'XOM': 92.25,
-            'JPM': 117.37, 'PG': 141.88, 'V': 200.00, 'CVX': 168.50, 'HD': 287.80, 'MA': 336.00, 'PFE': 52.51,
-            'ABBV': 151.01,
-        },
-        changes={
-            '^GSPC': 0.57, 'AAPL': 0.01, 'MSFT': 0.38, 'AMZN': 7.55, 'GOOGL': 1.92, 'GOOG': 0.74, 'TSLA': 1.50,
-            'BRK.B': 0.00, 'JNJ': 0.27, 'UNH': 0.00, 'FB': 0.27, 'NVDA': 0.00, 'XOM': 0.39, 'JPM': 0.03,
-            'PG': 0.09, 'V': 0.97, 'CVX': 0.68, 'HD': 0.61, 'MA': -0.18, 'PFE': 0.04, 'ABBV': 0.00,
-        }
-    )
+    return {'^GSPC': {'name': 'S&P 500', 'value': 3901.36, 'change': 0.57}, 'AAPL': {'name': 'Apple Inc.', 'value': 137.6, 'change': 0.01}, 'MSFT': {'name': 'Microsoft Corporation', 'value': 252.94, 'change': 0.38}, 'AMZN': {'name': 'Amazon.com Inc.', 'value': 2159.37, 'change': 7.55}, 'GOOGL': {'name': 'Alphabet Inc. Class A', 'value': 2180.08, 'change': 1.92}, 'GOOG': {'name': 'Alphabet Inc. Class C', 'value': 2187.0, 'change': 0.74}, 'TSLA': {'name': 'Tesla Inc', 'value': 665.4, 'change': 1.5}, 'BRK.B': {'name': 'Berkshire Hathaway Inc. Class B', 'value': 304.05, 'change': 0.0}, 'JNJ': {'name': 'Johnson & Johnson', 'value': 177.25, 'change': 0.27}, 'UNH': {'name': 'UnitedHealth Group Incorporated', 'value': 485.73, 'change': 0.0}, 'FB': {'name': 'Meta Platforms Inc. Class A', 'value': 193.81, 'change': 0.27}, 'NVDA': {'name': 'NVIDIA Corporation', 'value': 166.94, 'change': 0.0}, 'XOM': {'name': 'Exxon Mobil Corporation', 'value': 92.25, 'change': 0.39}, 'JPM': {'name': 'JPMorgan Chase & Co.', 'value': 117.37, 'change': 0.03}, 'PG': {'name': 'Procter & Gamble Company', 'value': 141.88, 'change': 0.09}, 'V': {'name': 'Visa Inc. Class A', 'value': 200.0, 'change': 0.97}, 'CVX': {'name': 'Chevron Corporation', 'value': 168.5, 'change': 0.68}, 'HD': {'name': 'Home Depot Inc.', 'value': 287.8, 'change': 0.61}, 'MA': {'name': 'Mastercard Incorporated Class A', 'value': 336.0, 'change': -0.18}, 'PFE': {'name': 'Pfizer Inc.', 'value': 52.51, 'change': 0.04}, 'ABBV': {'name': 'AbbVie Inc.', 'value': 151.01, 'change': 0.0}}
+

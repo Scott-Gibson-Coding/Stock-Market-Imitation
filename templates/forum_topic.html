@@ -3,7 +3,7 @@
 <style>
     body {
         min-height: 100vh;
-        background-color: rgb(255, 255, 200);
+        background-color: rgb(235, 235, 235);
     }
 </style>
 
@@ -20,10 +20,16 @@
 
     <!-- Display list of posts in reverse chronological order -->
     [[for post in posts:]]
-    <div class="notification is-light">
+    <div class="notification is-light m-0">
         <p class="is-size-3">[[=post['post_title']]]</p>
         <p class="is-size-5">[[=post['post_content']]]</p>
-        <p class="pt-3">[[=post['name']]]</p>
+        <p class="pt-3">Post by [[=post['name']]]</p>
     </div>
+    <div class="column is-3 m-0 p-0">
+        <a class="button is-link is-block" href="[[=URL('forum_post', post['id'])]]">
+            View Post
+        </a>
+    </div>
+    <div class="block"></div>
     [[pass]]
 </div>

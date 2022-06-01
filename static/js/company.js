@@ -32,11 +32,12 @@ let init = (app) => {
         return a;
     };
 
-    app.plot_history = function(co_id, co_name) {
+    app.plot_history = function(co_name, co_ticker) {
         // Get stock values of the company
+	app.refresh_quote(co_ticker)
         axios.post(get_history_url, {
-            co_id: co_id,
-            co_name: co_name
+            co_ticker: app.data.co_ticker,
+            co_name: app.data.co_name
         }).then(function(response) {
             let company_name = response.data.name;
             let stock_history = response.data.stock_history;
@@ -65,12 +66,17 @@ let init = (app) => {
     }
 
     // Get updated stock prices
-    app.refresh_quote = function(co_id) {
-        axios.post(company_refresh_url, {
-            co_id: co_id
+    app.refresh_quote = function(co_ticker) {
+       	console.log(co_ticker) 
+	axios.post(company_refresh_url, {
+            co_ticker: app.data.co_ticker
         }).then(function (response) {
-            app.vue.co_price = response.data.companies['current_stock_value'];
-        });
+            app.vue.co_price = response.data.co_price;
+            app.vue.co_change = response.data.co_change;
+	    app.vue.co_pct_change = response.data.co_pct_change;
+	    app.vue.date = response.data.date
+	    app.determine_color(app.vue.co_change)
+	});
     };
 
     app.show_buy_menu = function(flag) {

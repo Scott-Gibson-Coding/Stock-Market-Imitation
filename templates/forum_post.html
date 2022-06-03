@@ -15,6 +15,11 @@
         <span>[[=post.post_title]]</span>
     </div>
     <h1 class="title">Post</h1>
+    [[if current_user_id == post.user_id:]]
+    <a class="button is-danger" href="[[=URL('forum_delete_post', post.id)]]">
+        Delete Post
+    </a>
+    [[pass]]
     <!-- Display the post below -->
     <div class="notification has-background-grey-light-ter">
         <h1 class="title is-4">[[=post.post_title]]</h1>

@@ -215,6 +215,7 @@ def forum_post(post_id = None):
     topic = db.forum_topic[post.topic_id]
     return dict(
         post=post,
+        current_user_id=auth.get_user()['id'],
         user_name=user_name,
         topic=topic,
         # Signed URLs
@@ -247,6 +248,15 @@ def forum_add_topic(topic_id = None):
         title='Add New Post in ' + topic.topic,
         form=form,
     )
+
+
+@action('forum_delete_post/<post_id:int>')
+@action.uses(db, auth)
+def forum_delete_post(post_id=None):
+    assert post_id != None
+    db(db.forum_post.id == post_id).delete()
+    redirect(URL('forum'))
+
 
 ####
 # Server calls from JS for the Forum

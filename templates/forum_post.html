@@ -54,36 +54,89 @@
             <p class="has-text-black">{{c.comment}}</p>
             <p class="has-text-grey">{{c.user_name}}</p>
             <!-- Thumbs up and down -->
-            <div class="columns is-mobile">
-                <div class="column is-narrow">
-                    <div class="columns is-mobile">
-                        <div class="column is-narrow pr-1 pl-2">
-                            <span class="icon has-text-link">
-                                <i class="fa fa-lg fa-flip-horizontal" :class="{'fa-thumbs-o-up' : c.reaction != 1,
+            <nav class="level mb-0">
+                <div class="level-left">
+                    <span class="icon has-text-link">
+                        <i class="fa fa-lg fa-flip-horizontal" :class="{'fa-thumbs-o-up' : c.reaction != 1,
                                 'fa-thumbs-up' : c.reaction === 1}" @click="react(c._idx, 'up')"></i>
-                            </span>
-                            <span>{{c.likes}}</span>
-                        </div>
-                        <div class="column is-narrow pl-0">
-                            <span class="icon has-text-link">
-                                <i class="fa fa-lg" :class="{'fa-thumbs-o-down' : c.reaction != -1, 
+                    </span>
+                    <span>{{c.likes}}</span>
+
+                    <span class="icon has-text-link ml-1">
+                        <i class="fa fa-lg" :class="{'fa-thumbs-o-down' : c.reaction != -1, 
                                 'fa-thumbs-down' : c.reaction === -1}" @click="react(c._idx, 'down')"></i>
-                            </span>
-                            <span>{{c.dislikes}}</span>
-                        </div>
+                    </span>
+                    <span>{{c.dislikes}}</span>
+
+                    <div class="level-item">
+                        <span class="icon-text button is-light" @click="start_reply(c._idx)">
+                            <span class=icon><i class="fa fa-reply"></i></span>
+                            <span>Reply</span>
+                        </span>
                     </div>
                 </div>
-                <div class="column is-8">
-
-                </div>
-                <div class="column is-narrow">
-                    <span v-if="current_user_email === c.user_email" class="block">
-                        <span class="icon has-text-centered has-text-danger" @click="delete_comment(c._idx)">
-                          <i class="fa fa-lg fa-trash"></i>
+                <div class="level-right">
+                    <div class="level-item">
+                        <span v-if="current_user_email === c.user_email">
+                            <span class="icon is-medium has-text-danger button is-light"
+                                @click="delete_comment(c._idx)">
+                                <i class="fa fa-lg fa-trash"></i>
+                            </span>
                         </span>
-                      </span>
+                    </div>
+                </div>
+            </nav>
+            <!-- Add reply -->
+            <div v-if="c.adding_reply" class="block mb-0 mt-2">
+                <span>Reply</span>
+                <input v-model="c.current_reply" class="input block mt-2" type="text" placeholder="Add reply...">
+                <button class="button is-primary block" @click="post_reply(c._idx)">Reply</button>
+                <button class="button is-warning block" @click="cancel_reply(c._idx)">Cancel</button>
+            </div>
+            <!-- Replies -->
+            <div v-if="!c.show_replies">
+                <span class="icon-text button is-light mt-0" @click="display_replies(c._idx)">
+                    <span class=icon><i class="fa fa-chevron-down"></i></span>
+                    <span>Show {{c.reply_list.length}} replies</span>
+                </span>
+            </div>
+            <div v-if="c.show_replies">
+                <span class="icon-text button is-light mt-0" @click="hide_replies(c._idx)">
+                    <span class=icon><i class="fa fa-chevron-right"></i></span>
+                    <span>Hide replies</span>
+                </span>
+                <div v-for="r in c.reply_list" class="notification is-white ml-6">
+                    <p class="has-text-black">{{r.comment}}</p>
+                    <p class="is-size-7 has-text-grey">{{r.user_name}}</p>
+                    <!-- Thumbs up and down -->
+                    <nav class="level mb-0 mt-1">
+                        <div class="level-left">
+                            <span class="icon has-text-link">
+                                <i class="fa fa-lg fa-flip-horizontal" :class="{'fa-thumbs-o-up' : r.reaction != 1,
+                                'fa-thumbs-up' : r.reaction === 1}" @click="react_reply(c._idx, r._idx, 'up')"></i>
+                            </span>
+                            <span>{{r.likes}}</span>
+
+                            <span class="icon has-text-link ml-1">
+                                <i class="fa fa-lg" :class="{'fa-thumbs-o-down' : r.reaction != -1, 
+                                'fa-thumbs-down' : r.reaction === -1}" @click="react_reply(c._idx, r._idx, 'down')"></i>
+                            </span>
+                            <span>{{r.dislikes}}</span>
+                        </div>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <span v-if="current_user_email === r.user_email">
+                                    <span class="icon has-text-danger button is-white"
+                                        @click="delete_reply(c._idx, r._idx)">
+                                        <i class="fa fa-lg fa-trash"></i>
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </nav>
                 </div>
             </div>
+
         </div>
     </div>
 

@@ -268,16 +268,18 @@ def get_comments(post_id = None):
     assert post_id is not None
     current_user = db(db.auth_user.email == get_user_email()).select().first()
     assert current_user is not None
-    comments = db(db.forum_comment.post_id == post_id).select().as_list()
-    # Sort comments by date
-    comments = sorted(comments, key=lambda c: c['comment_date'], reverse=True)
+    # Get comments
+    all_entries = db(db.forum_comment.post_id == post_id).select().as_list()
     # Add owner name and email to each comment
     # Also add the number of likers and dislikers to comments
-    for c in comments:
+    # Also find the replies parented to each comment
+    comments = []
+    reply_dict = {}
+    for c in all_entries:
         user = db(db.auth_user.id == c['user_id']).select().first()
         c['user_name'] = user.first_name + " " +user.last_name
         c['user_email'] = user.email
-        # Get reactions to those comments
+        # Get reactions to the comment
         reactions = db(db.reaction_comment.comment_id == c['id']).select()
         # Sum likes and dislikes
         likes = 0
@@ -290,16 +292,30 @@ def get_comments(post_id = None):
         # Add to comment
         c['likes'] = likes
         c['dislikes'] = dislikes
-    # Get the reactions by the current user
-    current_reactions = db(db.reaction_comment.user_id == current_user.id).select().as_list()
-    # Remove rows with reaction == 0
-    for i in range(len(current_reactions)-1, -1, -1):
-        if current_reactions[i]['reaction'] == 0:
-            del current_reactions[i]
+        # Current user reaction
+        current_reaction = db((db.reaction_comment.comment_id == c['id']) &
+            (db.reaction_comment.user_id == current_user.id)).select().first()
+        if current_reaction:
+            c['reaction'] = current_reaction.reaction
+        else:
+            c['reaction'] = 0
+        # If this is has a parent, add it to the reply dict
+        # otherwise, it is a top level comment
+        if c['parent_idx'] == -1:
+            comments.append(c)
+        else:
+            reply_list = reply_dict.get(c['parent_idx'], [])
+            reply_dict[c['parent_idx']] = reply_list + [c]
+        
+    # Connect the replies to the comments
+    for c in comments:
+        c['reply_list'] = reply_dict.get(c['id'], [])
+
+    # Sort comments by date
+    comments = sorted(comments, key=lambda c: c['comment_date'], reverse=True)
     # Return user name of the current user as well
     return dict(
         comments=comments,
-        reactions=current_reactions,
         current_user_name=current_user.first_name+" "+current_user.last_name,
         current_user_email = get_user_email(),
     )
@@ -329,11 +345,13 @@ def save_reaction():
 def post_comment(post_id = None):
     assert post_id is not None
     comment_text = request.json.get("comment_text")
+    parent_idx = request.json.get('parent_idx')
     user = db(db.auth_user.email == get_user_email()).select().first()
     assert user is not None
     id = db.forum_comment.insert(
         user_id = user.id,
         post_id = post_id,
+        parent_idx = parent_idx,
         comment=comment_text,
     )
     date = db(db.forum_comment.id == id).select().first().comment_date
@@ -341,6 +359,7 @@ def post_comment(post_id = None):
     return dict(
         id = id,
         post_id = post_id,
+        parent_idx=parent_idx,
         comment_date = date,
         user_id = user.id,
         user_name = user_name,

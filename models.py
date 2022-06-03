@@ -82,6 +82,7 @@ db.define_table(
 )
 db.forum_post.user_id.writable = False
 db.forum_post.post_date.writable = False
+db.forum_post.topic_id.writable = False
 
 # Table to hold forum post comments
 db.define_table(

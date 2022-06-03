@@ -201,24 +201,6 @@ def forum_topic(topic_id = None):
         posts=posts,
     )
 
-# Add a post to a forum topic
-@action('forum_add_post/<topic_id:int>', method=['GET', 'POST'])
-@action.uses('forum_form.html', db, auth)
-def forum_add_topic(topic_id = None):
-    assert topic_id != None
-
-    form = Form(db.forum_post, formstyle=FormStyleBulma)
-
-    # handle post request from completed form
-    if form.accepted:
-        redirect(URL('forum', topic_id))
-
-    # render Get request form
-    return dict(
-        title='Add New Post',
-        form=form,
-    )
-
 
 # Displays individual post with comments
 @action('forum_post/<post_id:int>')
@@ -228,9 +210,9 @@ def forum_post(post_id = None):
     post = db(db.forum_post.id == post_id).select().first()
     if post is None:
         redirect(URL('forum'))
-    user = db(db.auth_user.id == post.user_id).select().first()
+    user = db.auth_user[post.user_id]
     user_name = user.first_name + " " + user.last_name
-    topic = db(db.forum_topic.id == post.topic_id).select().first()
+    topic = db.forum_topic[post.topic_id]
     return dict(
         post=post,
         user_name=user_name,
@@ -240,6 +222,30 @@ def forum_post(post_id = None):
         save_reaction_url = URL('save_reaction', signer=url_signer),
         post_comment_url = URL('post_comment', post_id, signer=url_signer),
         delete_comment_url = URL('delete_comment', signer=url_signer),
+    )
+
+# Add a post to a forum topic
+@action('forum_add_post/<topic_id:int>', method=['GET', 'POST'])
+@action.uses('forum_form.html', db, auth)
+def forum_add_topic(topic_id = None):
+    assert topic_id != None
+    topic = db.forum_topic[topic_id]
+    assert topic != None
+
+    form = Form(db.forum_post, formstyle=FormStyleBulma, dbio=False)
+    # handle post request from completed form
+    if form.accepted:
+        db.forum_post.insert(
+            topic_id=topic_id,
+            post_title=form.vars['post_title'],
+            post_content=form.vars['post_content']
+        )
+        redirect(URL('forum', topic_id))
+
+    # render Get request form
+    return dict(
+        title='Add New Post in ' + topic.topic,
+        form=form,
     )
 
 ####

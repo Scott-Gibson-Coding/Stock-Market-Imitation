@@ -301,8 +301,8 @@ def get_comments(post_id = None):
     for c in comments:
         c['reply_list'] = reply_dict.get(c['id'], [])
 
-    # Sort comments by date
-    comments = sorted(comments, key=lambda c: c['comment_date'], reverse=True)
+    # Sort comments by likes-dislikes
+    comments = sorted(comments, key=lambda c: c['likes']-c['dislikes'], reverse=True)
     # Return user name of the current user as well
     return dict(
         comments=comments,
@@ -338,6 +338,16 @@ def post_comment(post_id = None):
     parent_idx = request.json.get('parent_idx')
     user = db(db.auth_user.email == get_user_email()).select().first()
     assert user is not None
+    user_name = user.first_name + " " + user.last_name
+    # Check that the parent comment still exists if not a top level comment
+    if parent_idx != -1:
+        parent = db(db.forum_comment.id == parent_idx).select().first()
+        if parent is None:
+            return dict(
+                user_name = user_name,
+                user_email = get_user_email(),
+                note="Post Failed, Parent Not Found",
+            )
     id = db.forum_comment.insert(
         user_id = user.id,
         post_id = post_id,
@@ -345,7 +355,6 @@ def post_comment(post_id = None):
         comment=comment_text,
     )
     date = db(db.forum_comment.id == id).select().first().comment_date
-    user_name = user.first_name + " " + user.last_name
     return dict(
         id = id,
         post_id = post_id,
@@ -368,6 +377,10 @@ def delete_comment():
     if owner.email != get_user_email():
         return "Delete Failed, Owner does not match."
     #else the current user owns the post, so delete it
+    # If the post is a top level post (not a reply), we
+    # need to delete the replies linked to it as well
+    if comment.parent_idx == -1:
+        db(db.forum_comment.parent_idx == comment.id).delete()
     db(db.forum_comment.id == comment_id).delete()
     return "ok"
 

@@ -174,7 +174,7 @@ def forum_post(post_id = None):
     return dict(
         post=post,
         user_name=user_name,
-        topic_name=topic.topic,
+        topic=topic,
         # Signed URLs
         get_comments_url = URL('get_comments', post_id, signer=url_signer),
         save_reaction_url = URL('save_reaction', signer=url_signer),
@@ -250,7 +250,7 @@ def save_reaction():
 
 @action('post_comment/<post_id:int>', method="POST")
 @action.uses(db, auth, url_signer.verify())
-def save_post(post_id = None):
+def post_comment(post_id = None):
     assert post_id is not None
     comment_text = request.json.get("comment_text")
     user = db(db.auth_user.email == get_user_email()).select().first()
@@ -311,6 +311,7 @@ def add_test_post():
     db.forum_comment.insert(
         user_id=1,
         post_id=1,
+        parent_idx=1,
         comment="Thanks",
     )
     return "ok"

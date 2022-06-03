@@ -84,6 +84,7 @@ db.define_table(
     'forum_comment',
     Field('user_id', 'reference auth_user'),
     Field('post_id', 'reference forum_post'),
+    Field('parent_idx', 'integer', default=-1), # Not a reference since it can be empty
     Field('comment', requires=IS_NOT_EMPTY()),
     Field('comment_date', 'datetime', default=get_time)
 )

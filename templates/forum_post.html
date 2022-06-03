@@ -8,10 +8,10 @@
 
 <div class="section mx-6 px-3" id="vue-target" v-cloak>
     <div class="block icon-text">
-        <span>Forum</span>
-        <span class="icon mt-1"><i class="fa fa-chevron-right"></i></span>
-        <span>[[=topic_name]]</span>
-        <span class="icon mt-1"><i class="fa fa-chevron-right"></i></span>
+        <span><a href="[[=URL('forum')]]">Forum</a></span>
+        <span class="icon"><i class="fa fa-chevron-right"></i></span>
+        <span><a href="[[=URL('forum', topic.id)]]">[[=topic.topic]]</a></span>
+        <span class="icon"><i class="fa fa-chevron-right"></i></span>
         <span>[[=post.post_title]]</span>
     </div>
     <h1 class="title">Post</h1>

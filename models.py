@@ -6,6 +6,8 @@ import datetime
 from .common import db, Field, auth
 from pydal.validators import *
 
+def get_user_id():
+    return auth.get_user()['id'] if auth.current_user else None
 
 def get_user_email():
     return auth.current_user.get('email') if auth.current_user else None
@@ -72,12 +74,15 @@ db.define_table(
 # Table to hold forum posts
 db.define_table(
     'forum_post',
-    Field('user_id', 'reference auth_user'),
+    Field('user_id', 'reference auth_user', default=get_user_id),
     Field('topic_id', 'reference forum_topic'),
     Field('post_title', requires=IS_NOT_EMPTY()),
     Field('post_content', requires=IS_NOT_EMPTY()),
     Field('post_date', 'datetime', default=get_time)
 )
+db.forum_post.user_id.writable = False
+db.forum_post.post_date.writable = False
+db.forum_post.topic_id.writable = False
 
 # Table to hold forum post comments
 db.define_table(

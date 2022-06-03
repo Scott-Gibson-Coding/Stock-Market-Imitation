@@ -26,6 +26,7 @@ Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app w
 """
 
 from py4web import action, request, abort, redirect, URL
+from py4web.utils.form import Form, FormStyleBulma
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from py4web.utils.url_signer import URLSigner
@@ -148,17 +149,58 @@ def search_data():
 # Displays categories
 @action('forum')
 @action.uses('forum.html', db, auth)
-def forum_topics():
+def forum():
+    # query forum_topic db for topics in alphabetical order
+    topics = db().select(db.forum_topic.ALL, orderby=db.forum_topic.topic)
     return dict(
+        topics=topics
+    )
 
+@action('forum_add_topic', method=['GET', 'POST'])
+@action.uses('forum_form.html', db, auth)
+def forum_add_topic():
+    form = Form(db.forum_topic, formstyle=FormStyleBulma)
+
+    # handle post request from completed form
+    if form.accepted:
+        redirect(URL('forum'))
+
+    # render Get request form
+    return dict(
+        title='Add New Forum Topic',
+        form=form,
     )
 
 # Displays posts within a category
-@action('forum/<cat_id:int>')
-@action.uses('forum_cat.html', db, auth)
-def forum_cat(cat_id = None):
-    assert cat_id is not None
-    return dict()
+@action('forum/<topic_id:int>')
+@action.uses('forum_topic.html', db, auth)
+def forum_topic(topic_id = None):
+    assert topic_id is not None
+
+    # ensure the topic id is valid
+    topic = db.forum_topic[topic_id]
+    assert topic != None
+
+    # get the posts related to this topic in chronological order
+    posts = db(db.forum_post.topic_id == topic_id).select(orderby=db.forum_post.post_date).as_list()
+    posts.reverse()
+
+    # go through and add the user names to each post
+    for post_id in range(len(posts)):
+        post = posts[post_id]
+        user = db.auth_user[post['user_id']]
+        if user == None:
+            name = "unknown"
+        else:
+            name = user['first_name'] + ' ' + user['last_name']
+        posts[post_id]['name'] = name
+
+    return dict(
+        topic_id=topic_id,
+        topic=topic['topic'],
+        posts=posts,
+    )
+
 
 # Displays individual post with comments
 @action('forum_post/<post_id:int>')
@@ -168,9 +210,9 @@ def forum_post(post_id = None):
     post = db(db.forum_post.id == post_id).select().first()
     if post is None:
         redirect(URL('forum'))
-    user = db(db.auth_user.id == post.user_id).select().first()
+    user = db.auth_user[post.user_id]
     user_name = user.first_name + " " + user.last_name
-    topic = db(db.forum_topic.id == post.topic_id).select().first()
+    topic = db.forum_topic[post.topic_id]
     return dict(
         post=post,
         user_name=user_name,
@@ -180,6 +222,30 @@ def forum_post(post_id = None):
         save_reaction_url = URL('save_reaction', signer=url_signer),
         post_comment_url = URL('post_comment', post_id, signer=url_signer),
         delete_comment_url = URL('delete_comment', signer=url_signer),
+    )
+
+# Add a post to a forum topic
+@action('forum_add_post/<topic_id:int>', method=['GET', 'POST'])
+@action.uses('forum_form.html', db, auth)
+def forum_add_topic(topic_id = None):
+    assert topic_id != None
+    topic = db.forum_topic[topic_id]
+    assert topic != None
+
+    form = Form(db.forum_post, formstyle=FormStyleBulma, dbio=False)
+    # handle post request from completed form
+    if form.accepted:
+        db.forum_post.insert(
+            topic_id=topic_id,
+            post_title=form.vars['post_title'],
+            post_content=form.vars['post_content']
+        )
+        redirect(URL('forum', topic_id))
+
+    # render Get request form
+    return dict(
+        title='Add New Post in ' + topic.topic,
+        form=form,
     )
 
 ####

@@ -30,6 +30,7 @@ let init = (app) => {
             e.adding_reply = false;
             e.current_reply = "";
             e.show_replies = false;
+            e.confirm_delete = false;
         });
         return a
     };
@@ -40,7 +41,13 @@ let init = (app) => {
         c.dislikes = 0;
         c.replies = 0;
         c.reply_list = [];
-    }
+    };
+
+    app.complete_replies = (a) => {
+        a.map((r)=> {
+            r.confirm_delete = false;
+        });
+    };
 
     app.start_comment = function(){
         // Open field
@@ -76,9 +83,14 @@ let init = (app) => {
     };
 
     app.delete_comment = function(comment_idx){
-        let comment = app.vue.comment_list.splice(comment_idx, 1)[0];
-        app.enumerate(app.vue.comment_list);
-        axios.get(delete_comment_url, {'params':{'comment_id':comment.id}});
+        let comment = app.vue.comment_list[comment_idx];
+        if (comment.confirm_delete){
+            app.vue.comment_list.splice(comment_idx, 1)[0];
+            app.enumerate(app.vue.comment_list);
+            axios.get(delete_comment_url, {'params':{'comment_id':comment.id}});
+        } else{
+            comment.confirm_delete = true;
+        }    
     };
 
     app.react = function(comment_idx, react){
@@ -138,6 +150,7 @@ let init = (app) => {
                 // Add reactive variables to the new post
                 new_comment['likes'] = 0;
                 new_comment['dislikes'] = 0;
+                new_comment['confirm_delete'] = false;
                 app.cancel_reply(comment_idx);
                 // Place at back of list and redo indices
                 comment.reply_list.push(new_comment);
@@ -158,9 +171,14 @@ let init = (app) => {
 
     app.delete_reply = function(comment_idx, reply_idx){
         let comment = app.vue.comment_list[comment_idx];
-        let reply = comment.reply_list.splice(reply_idx, 1)[0];
-        app.enumerate(comment.reply_list);
-        axios.get(delete_comment_url, {'params':{'comment_id':reply.id}});
+        let reply = comment.reply_list[reply_idx];
+        if (reply.confirm_delete){
+            comment.reply_list.splice(reply_idx, 1)[0];
+            app.enumerate(comment.reply_list);
+            axios.get(delete_comment_url, {'params':{'comment_id':reply.id}});
+        }else{
+            reply.confirm_delete = true;
+        }
     };
 
     app.react_reply = function(comment_idx, reply_idx, react){
@@ -228,6 +246,7 @@ let init = (app) => {
             app.enumerate(comments);
             for (let c of comments){
                 app.enumerate(c.reply_list);
+                app.complete_replies(c.reply_list);
             }
             app.complete(comments);
             app.vue.comment_list = comments;

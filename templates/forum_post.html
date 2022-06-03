@@ -70,12 +70,20 @@
                         </span>
                     </div>
                 </div>
-                <div class="level-right">
+                <div class="level-right" @mouseleave="c.confirm_delete = false">
                     <div class="level-item">
                         <span v-if="current_user_email === c.user_email">
-                            <span class="icon is-medium has-text-danger button is-light"
-                                @click="delete_comment(c._idx)">
-                                <i class="fa fa-lg fa-trash"></i>
+                            <span v-if="!c.confirm_delete">
+                                <span class="button is-light" @click="delete_comment(c._idx)">
+                                    <span class="icon is-medium has-text-danger">
+                                        <i class="fa fa-lg fa-trash"></i>
+                                    </span>
+                                </span>
+                            </span>
+                            <span v-if="c.confirm_delete">
+                                <span class="button is-danger" @click="delete_comment(c._idx)">
+                                    Delete?
+                                </span>
                             </span>
                         </span>
                     </div>
@@ -114,16 +122,25 @@
 
                             <span class="icon has-text-link ml-1">
                                 <i class="fa fa-lg" :class="{'fa-thumbs-o-down' : r.reaction != -1, 
-                                'fa-thumbs-down' : r.reaction === -1}" @click="react_reply(c._idx, r._idx, 'down')"></i>
+                                'fa-thumbs-down' : r.reaction === -1}"
+                                    @click="react_reply(c._idx, r._idx, 'down')"></i>
                             </span>
                             <span>{{r.dislikes}}</span>
                         </div>
-                        <div class="level-right">
+                        <div class="level-right" @mouseleave="r.confirm_delete = false">
                             <div class="level-item">
                                 <span v-if="current_user_email === r.user_email">
-                                    <span class="icon has-text-danger button is-white"
-                                        @click="delete_reply(c._idx, r._idx)">
-                                        <i class="fa fa-lg fa-trash"></i>
+                                    <span v-if="!r.confirm_delete">
+                                        <span class="button is-white" @click="delete_reply(c._idx, r._idx)">
+                                            <span class="icon has-text-danger">
+                                                <i class="fa fa-lg fa-trash"></i>
+                                            </span>
+                                        </span>
+                                    </span>
+                                    <span v-if="r.confirm_delete">
+                                        <span class="button is-danger" @click="delete_reply(c._idx, r._idx)">
+                                            Delete?
+                                        </span>
                                     </span>
                                 </span>
                             </div>

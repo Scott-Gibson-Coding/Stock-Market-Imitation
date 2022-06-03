@@ -1,22 +1,30 @@
 [[extend 'layout.html']]
 
-<style>
-    body {
-        min-height: 100vh;
-        background-color: rgb(235, 235, 235);
-    }
-</style>
-
 <div class="section mx-6 px-3">
-    <p class="title is-2">[[=topic]]</p>
-    
-    <!-- Display an add post button -->
-    <a class="button is-primary is-medium block" href="[[=URL('forum_add_post', topic_id)]]">
-        <span>Add Post</span>
-        <span class="icon">
-            <i class="fa fa-lg fa-plus"></i>
-        </span>
-    </a>
+    <!-- Breadcrumbs -->
+    <nav class="breadcrumb has-succeeds-separator" aria-label="breadcrumbs">
+        <ul>
+            <li><a href="[[=URL('forum')]]">Forum</a></li>
+            <li class="is-active"><a aria-current="page">[[=topic]]</a></li>
+        </ul>
+    </nav>
+    <p class="title is-2 mb-2">[[=topic]]</p>
+    <div class="column is-5 px-0">
+        <!-- Display an add post button -->
+        <a class="button is-primary is-medium is-fullwidth" href="[[=URL('forum_add_post', topic_id)]]">
+            <span>Add Post</span>
+            <span class="icon">
+                <i class="fa fa-lg fa-plus"></i>
+            </span>
+        </a>
+    </div>
+    [[if len(posts) == 0:]]
+    <div class="notification is-dark mt-6">
+        <div class="title">
+            No Posts Yet...
+        </div>
+    </div>
+    [[pass]]
 
     <!-- Display list of posts in reverse chronological order -->
     [[for post in posts:]]

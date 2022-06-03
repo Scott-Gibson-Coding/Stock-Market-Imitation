@@ -8,9 +8,8 @@
             <li class="is-active"><a aria-current="page">[[=topic]]</a></li>
         </ul>
     </nav>
-
     <p class="title is-2 mb-2">[[=topic]]</p>
-    <div class="column is-5 px-0 pt-0">
+    <div class="column is-5 px-0">
         <!-- Display an add post button -->
         <a class="button is-primary is-medium is-fullwidth" href="[[=URL('forum_add_post', topic_id)]]">
             <span>Add Post</span>
@@ -19,6 +18,13 @@
             </span>
         </a>
     </div>
+    [[if len(posts) == 0:]]
+    <div class="notification is-dark mt-6">
+        <div class="title">
+            No Posts Yet...
+        </div>
+    </div>
+    [[pass]]
 
     <!-- Display list of posts in reverse chronological order -->
     [[for post in posts:]]

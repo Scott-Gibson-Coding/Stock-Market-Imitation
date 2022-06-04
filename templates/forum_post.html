@@ -20,16 +20,37 @@
         </div>
         <div class="level-right">
             [[if current_user_id == post.user_id:]]
-            <a class="button is-danger is-medium" href="[[=URL('forum_delete_post', post.id)]]">
+            <a class="button is-danger is-medium" href="[[=URL('forum_delete_post', post.id, signer=url_signer)]]">
                 Delete Post
             </a>
             [[pass]]
         </div>
     </div>
     <!-- Display the post below -->
-    <div class="notification has-background-grey-light-ter">
+    <div v-if="!editing_post" class="notification has-background-grey-light-ter">
+        <div class="level">
+            <div class="level-left">
+                <h1 class="title is-4">[[=post.post_title]]</h1>
+            </div>
+            <!-- Post contents -->
+            <div class="level-right">
+                <button v-if="can_edit" class="button is-ghost" @click="start_post_edit">
+                    <span class="icon is-medium">
+                        <i class="fa fa-pencil-square-o fa-2x"></i>
+                    </span>
+                </button>
+            </div>
+        </div>
+        <p class="block has-text-black">{{post_content}}</p>
+        <p class="block has-text-grey">[[=user_name]]</p>
+    </div>
+    <!-- When edit_post state is true -->
+    <div v-if="editing_post" class="notification has-background-grey-light-ter">
         <h1 class="title is-4">[[=post.post_title]]</h1>
-        <p class="block has-text-black">[[=post.post_content]]</p>
+        <div class="control block">
+            <textarea class="textarea" v-model="new_post_edit"
+            @blur="finish_post_edit"></textarea>
+        </div>
         <p class="block has-text-grey">[[=user_name]]</p>
     </div>
     <!-- Vue comments below -->
@@ -149,6 +170,8 @@
 [[block page_scripts]]
 <!-- Loads the index-specific js for Vue -->
 <script>
+    let get_post_url = "[[=XML(get_post_url)]]";
+    let edit_post_url = "[[=XML(edit_post_url)]]";
     let get_comments_url = "[[=XML(get_comments_url)]]";
     let save_reaction_url = "[[=XML(save_reaction_url)]]";
     let post_comment_url = "[[=XML(post_comment_url)]]";

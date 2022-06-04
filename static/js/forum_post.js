@@ -9,6 +9,10 @@ let init = (app) => {
 
     // This is the Vue data.
     app.data = {
+        can_edit: false,
+        editing_post: false,
+        post_content: "",
+        new_post_edit: "",
         comment_list: [],
         current_user_name: "",
         current_user_email: "",
@@ -40,6 +44,20 @@ let init = (app) => {
         c.dislikes = 0;
         c.replies = 0;
         c.reply_list = [];
+    }
+
+    app.start_post_edit = function(){
+        app.vue.editing_post = true;
+    };
+
+    app.finish_post_edit = function(){
+        // send updated post to the db
+        axios.post(edit_post_url, {
+            'post_content': app.vue.new_post_edit
+        }).then(function(response) {
+            app.vue.post_content = app.vue.new_post_edit;
+            app.vue.editing_post = false;
+        });
     }
 
     app.start_comment = function(){
@@ -198,6 +216,8 @@ let init = (app) => {
 
     // This contains all the methods
     app.methods = {
+        start_post_edit: app.start_post_edit, // TODO: sets a flag to make the post text editable
+        finish_post_edit: app.finish_post_edit, // TODO: sends an update request to update the post content in the db
         start_comment: app.start_comment,
         cancel_comment: app.cancel_comment,
         post_comment: app.post_comment,
@@ -220,6 +240,15 @@ let init = (app) => {
     });
 
     app.init = () => {
+        // Get the post content, since we want the user to be able to edit it
+        // also check to see if the user can edit the post
+        axios.get(get_post_url).then(function(response) {
+            app.vue.post_content = response.data.post_content;
+            app.vue.new_post_edit = response.data.post_content;
+            if (response.data.user_id === response.data.post_author_id) {
+                app.vue.can_edit = true;
+            }
+        });
         // Get the comments for the current post
         // as well as the post details
         axios.get(get_comments_url).then(function(response){

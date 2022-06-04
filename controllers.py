@@ -214,11 +214,14 @@ def forum_post(post_id = None):
     user_name = user.first_name + " " + user.last_name
     topic = db.forum_topic[post.topic_id]
     return dict(
+        url_signer=url_signer,
         post=post,
         current_user_id=auth.get_user()['id'],
         user_name=user_name,
         topic=topic,
         # Signed URLs
+        get_post_url = URL('get_post', post_id),
+        edit_post_url = URL('forum_edit_post', post_id, signer=url_signer),
         get_comments_url = URL('get_comments', post_id, signer=url_signer),
         save_reaction_url = URL('save_reaction', signer=url_signer),
         post_comment_url = URL('post_comment', post_id, signer=url_signer),
@@ -248,10 +251,21 @@ def forum_add_topic(topic_id = None):
         title='Add New Post in ' + topic.topic,
         form=form,
     )
+    
+# Edit a current post
+@action('forum_edit_post/<post_id:int>', method=['POST'])
+@action.uses(db, auth, url_signer.verify())
+def forum_edit_post(post_id = None):
+    assert post_id != None
+    post = db.forum_post[post_id]
+    assert post != None
+    # update the forum_post db entry
+    new_post_content = request.json.get('post_content')
+    db(db.forum_post.id == post_id).update(post_content=new_post_content)
 
 
 @action('forum_delete_post/<post_id:int>')
-@action.uses(db, auth)
+@action.uses(db, auth, url_signer.verify())
 def forum_delete_post(post_id=None):
     assert post_id != None
     db(db.forum_post.id == post_id).delete()
@@ -261,6 +275,19 @@ def forum_delete_post(post_id=None):
 ####
 # Server calls from JS for the Forum
 ####
+
+@action('get_post/<post_id:int>')
+@action.uses(db, auth)
+def get_post(post_id = None):
+    assert post_id != None
+    post = db.forum_post[post_id]
+    assert post != None
+    return dict(
+        user_id=auth.get_user()['id'],
+        post_author_id=post.user_id,
+        post_content=post.post_content
+    )
+
 
 @action('get_comments/<post_id:int>')
 @action.uses(db, auth, url_signer.verify())

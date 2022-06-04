@@ -1,0 +1,198 @@
+[[extend 'layout.html']]
+
+<style>
+    [v-cloak] {
+        display: none;
+    }
+</style>
+
+<div class="section mx-6 px-3" id="vue-target" v-cloak>
+    <div class="block icon-text">
+        <span><a href="[[=URL('forum')]]">Forum</a></span>
+        <span class="icon"><i class="fa fa-chevron-right"></i></span>
+        <span><a href="[[=URL('forum', topic.id)]]">[[=topic.topic]]</a></span>
+        <span class="icon"><i class="fa fa-chevron-right"></i></span>
+        <span>[[=post.post_title]]</span>
+    </div>
+    <div class="level">
+        <div class="level-left">
+            <h1 class="title">Post</h1>
+        </div>
+        <div class="level-right">
+            [[if current_user_id == post.user_id:]]
+            <a class="button is-danger is-medium" href="[[=URL('forum_delete_post', post.id, signer=url_signer)]]">
+                Delete Post
+            </a>
+            [[pass]]
+        </div>
+    </div>
+    <!-- Display the post below -->
+    <div v-if="!editing_post" class="notification has-background-grey-light-ter">
+        <div class="level">
+            <div class="level-left">
+                <h1 class="title is-4">[[=post.post_title]]</h1>
+            </div>
+            <!-- Post contents -->
+            <div class="level-right">
+                <button v-if="can_edit" class="button is-ghost" @click="start_post_edit">
+                    <span class="icon is-medium">
+                        <i class="fa fa-pencil-square-o fa-2x"></i>
+                    </span>
+                </button>
+            </div>
+        </div>
+        <p class="block has-text-black">{{post_content}}</p>
+        <p class="block has-text-grey">[[=user_name]]</p>
+    </div>
+    <!-- When edit_post state is true -->
+    <div v-if="editing_post" class="notification has-background-grey-light-ter">
+        <h1 class="title is-4">[[=post.post_title]]</h1>
+        <div class="control block">
+            <textarea class="textarea" v-model="new_post_edit"
+            @blur="finish_post_edit"></textarea>
+        </div>
+        <p class="block has-text-grey">[[=user_name]]</p>
+    </div>
+    <!-- Vue comments below -->
+    <div class="box">
+        <h1 class="title is-5">Comments</h1>
+        <!-- Add comment -->
+        <div v-if="adding_comment" class="block">
+            <input v-model="current_comment" class="input block" type="text" placeholder="Add comment...">
+            <button class="button is-primary block" @click="post_comment()">Post</button>
+            <button class="button is-warning block" @click="cancel_comment()">Cancel</button>
+        </div>
+        <!-- Add button (hidden if adding comment) -->
+        <div v-if="!adding_comment" class="block">
+            <div class="columns">
+                <div class="column">
+                    <button class="button is-success" @click="start_comment()">
+                        <span class="icon-text">
+                            <span class="icon"><i class="fa fa-plus"></i></span>
+                            <span>Add Comment</span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div v-for="c in comment_list" class="notification is-light">
+            <p class="has-text-black">{{c.comment}}</p>
+            <p class="has-text-grey">{{c.user_name}}</p>
+            <!-- Thumbs up and down -->
+            <nav class="level mb-0">
+                <div class="level-left">
+                    <span class="icon has-text-link">
+                        <i class="fa fa-lg fa-flip-horizontal" :class="{'fa-thumbs-o-up' : c.reaction != 1,
+                                'fa-thumbs-up' : c.reaction === 1}" @click="react(c._idx, 'up')"></i>
+                    </span>
+                    <span>{{c.likes}}</span>
+
+                    <span class="icon has-text-link ml-1">
+                        <i class="fa fa-lg" :class="{'fa-thumbs-o-down' : c.reaction != -1, 
+                                'fa-thumbs-down' : c.reaction === -1}" @click="react(c._idx, 'down')"></i>
+                    </span>
+                    <span>{{c.dislikes}}</span>
+
+                    <div class="level-item">
+                        <span class="icon-text button is-light" @click="start_reply(c._idx)">
+                            <span class=icon><i class="fa fa-reply"></i></span>
+                            <span>Reply</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="level-right" @mouseleave="c.confirm_delete = false">
+                    <div class="level-item">
+                        <span v-if="current_user_email === c.user_email">
+                            <span v-if="!c.confirm_delete">
+                                <span class="button is-light" @click="delete_comment(c._idx)">
+                                    <span class="icon is-medium has-text-danger">
+                                        <i class="fa fa-lg fa-trash"></i>
+                                    </span>
+                                </span>
+                            </span>
+                            <span v-if="c.confirm_delete">
+                                <span class="button is-danger" @click="delete_comment(c._idx)">
+                                    Delete?
+                                </span>
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </nav>
+            <!-- Add reply -->
+            <div v-if="c.adding_reply" class="block mb-0 mt-2">
+                <span>Reply</span>
+                <input v-model="c.current_reply" class="input block mt-2" type="text" placeholder="Add reply...">
+                <button class="button is-primary block" @click="post_reply(c._idx)">Reply</button>
+                <button class="button is-warning block" @click="cancel_reply(c._idx)">Cancel</button>
+            </div>
+            <!-- Replies -->
+            <div v-if="!c.show_replies">
+                <span class="icon-text button is-light mt-0" @click="display_replies(c._idx)">
+                    <span class=icon><i class="fa fa-chevron-down"></i></span>
+                    <span>Show {{c.reply_list.length}} replies</span>
+                </span>
+            </div>
+            <div v-if="c.show_replies">
+                <span class="icon-text button is-light mt-0" @click="hide_replies(c._idx)">
+                    <span class=icon><i class="fa fa-chevron-right"></i></span>
+                    <span>Hide replies</span>
+                </span>
+                <div v-for="r in c.reply_list" class="notification is-white ml-6">
+                    <p class="has-text-black">{{r.comment}}</p>
+                    <p class="is-size-7 has-text-grey">{{r.user_name}}</p>
+                    <!-- Thumbs up and down -->
+                    <nav class="level mb-0 mt-1">
+                        <div class="level-left">
+                            <span class="icon has-text-link">
+                                <i class="fa fa-lg fa-flip-horizontal" :class="{'fa-thumbs-o-up' : r.reaction != 1,
+                                'fa-thumbs-up' : r.reaction === 1}" @click="react_reply(c._idx, r._idx, 'up')"></i>
+                            </span>
+                            <span>{{r.likes}}</span>
+
+                            <span class="icon has-text-link ml-1">
+                                <i class="fa fa-lg" :class="{'fa-thumbs-o-down' : r.reaction != -1, 
+                                'fa-thumbs-down' : r.reaction === -1}"
+                                    @click="react_reply(c._idx, r._idx, 'down')"></i>
+                            </span>
+                            <span>{{r.dislikes}}</span>
+                        </div>
+                        <div class="level-right" @mouseleave="r.confirm_delete = false">
+                            <div class="level-item">
+                                <span v-if="current_user_email === r.user_email">
+                                    <span v-if="!r.confirm_delete">
+                                        <span class="button is-white" @click="delete_reply(c._idx, r._idx)">
+                                            <span class="icon has-text-danger">
+                                                <i class="fa fa-lg fa-trash"></i>
+                                            </span>
+                                        </span>
+                                    </span>
+                                    <span v-if="r.confirm_delete">
+                                        <span class="button is-danger" @click="delete_reply(c._idx, r._idx)">
+                                            Delete?
+                                        </span>
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+[[block page_scripts]]
+<!-- Loads the index-specific js for Vue -->
+<script>
+    let get_post_url = "[[=XML(get_post_url)]]";
+    let edit_post_url = "[[=XML(edit_post_url)]]";
+    let get_comments_url = "[[=XML(get_comments_url)]]";
+    let save_reaction_url = "[[=XML(save_reaction_url)]]";
+    let post_comment_url = "[[=XML(post_comment_url)]]";
+    let delete_comment_url = "[[=XML(delete_comment_url)]]";
+</script>
+<script src="js/forum_post.js"></script>
+[[end]]

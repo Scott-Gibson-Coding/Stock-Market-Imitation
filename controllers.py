@@ -446,33 +446,4 @@ def delete_comment():
         db(db.forum_comment.parent_idx == comment.id).delete()
     db(db.forum_comment.id == comment_id).delete()
     return "ok"
-
-@action('add_test_post')
-@action.uses(db)
-def add_test_post():
-    db.forum_topic.truncate()
-    db.forum_post.truncate()
-    db.forum_comment.truncate()
-    db.forum_topic.insert(
-        topic = "Math"
-    )
-    db.forum_post.insert(
-        user_id = 1,
-        topic_id = 1,
-        post_title="The wonders of pi",
-        post_content="Pi is the ratio of the circumference of a circle to its diameter. It has a value 3.14159.",
-    )
-    db.forum_comment.insert(
-        user_id=2,
-        post_id=1,
-        comment="Nice",
-    )
-    import time
-    time.sleep(1)
-    db.forum_comment.insert(
-        user_id=1,
-        post_id=1,
-        parent_idx=1,
-        comment="Thanks",
-    )
-    return "ok"
+    

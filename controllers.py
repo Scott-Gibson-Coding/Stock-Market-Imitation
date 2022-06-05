@@ -39,6 +39,9 @@ url_signer = URLSigner(session)
 # Get preset company data
 s = StockSimulator()
 
+# redirects user to index page if not logged in
+def ensure_login():
+    auth.get_user() or redirect(URL(''))
 
 @action('load_db')
 @action.uses(db)
@@ -58,9 +61,6 @@ def index():
         verify_email_url = URL('verify_email'),
     )
 
-
-
-
 # returns True if the email is already in the auth_user table
 @action('verify_email')
 @action.uses(db)
@@ -75,6 +75,7 @@ def verify_email():
 @action('portfolio')
 @action.uses('portfolio.html', db, auth)
 def portfolio():
+    ensure_login()
     return {}
 
 
@@ -85,6 +86,7 @@ def portfolio():
 @action('company/<ticker>')
 @action.uses('company.html', db, auth)
 def company(ticker='^GSPC'):
+    ensure_login()
     # TODO temporarily initailizing here since db locks when initializing outside of a page function
     #   sqlite3.OperationalError: database is locked
     # If invalid ticker, simply redirect to default company page
@@ -159,6 +161,7 @@ def get_stock_history():
 @action('search')
 @action.uses('search.html', db, auth)
 def search():
+    ensure_login()
     return dict(search_data_url = URL('search_data'), company_url = URL('company'))
 
 
@@ -176,6 +179,7 @@ def search_data():
 @action('forum')
 @action.uses('forum.html', db, auth)
 def forum():
+    ensure_login()
     # query forum_topic db for topics in alphabetical order
     topics = db().select(db.forum_topic.ALL, orderby=db.forum_topic.topic)
     return dict(
@@ -185,6 +189,7 @@ def forum():
 @action('forum_add_topic', method=['GET', 'POST'])
 @action.uses('forum_form.html', db, auth)
 def forum_add_topic():
+    ensure_login()
     form = Form(db.forum_topic, formstyle=FormStyleBulma)
 
     # handle post request from completed form
@@ -201,6 +206,7 @@ def forum_add_topic():
 @action('forum/<topic_id:int>')
 @action.uses('forum_topic.html', db, auth)
 def forum_topic(topic_id = None):
+    ensure_login()
     assert topic_id is not None
 
     # ensure the topic id is valid
@@ -232,6 +238,7 @@ def forum_topic(topic_id = None):
 @action('forum_post/<post_id:int>')
 @action.uses('forum_post.html', db, auth, url_signer)
 def forum_post(post_id = None):
+    ensure_login()
     assert post_id is not None
     post = db(db.forum_post.id == post_id).select().first()
     if post is None:
@@ -258,6 +265,7 @@ def forum_post(post_id = None):
 @action('forum_add_post/<topic_id:int>', method=['GET', 'POST'])
 @action.uses('forum_form.html', db, auth)
 def forum_add_topic(topic_id = None):
+    ensure_login()
     assert topic_id != None
     topic = db.forum_topic[topic_id]
     assert topic != None

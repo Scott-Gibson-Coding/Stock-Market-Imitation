@@ -1,6 +1,3 @@
-// Import Plotter
-import { Plotter } from "./Plotter.js";
-
 // This will be the object that will contain the Vue attributes
 // and be used to initialize it.
 let app = {};
@@ -34,7 +31,7 @@ let init = (app) => {
 
     app.plot_history = function(co_name, co_ticker) {
         // Get stock values of the company
-	app.refresh_quote(co_ticker)
+	    app.refresh_quote(co_ticker);
         axios.post(get_history_url, {
             co_ticker: app.data.co_ticker,
             co_name: app.data.co_name
@@ -67,16 +64,15 @@ let init = (app) => {
 
     // Get updated stock prices
     app.refresh_quote = function(co_ticker) {
-       	console.log(co_ticker) 
-	axios.post(company_refresh_url, {
+    	axios.post(company_refresh_url, {
             co_ticker: app.data.co_ticker
         }).then(function (response) {
             app.vue.co_price = response.data.co_price;
             app.vue.co_change = response.data.co_change;
-	    app.vue.co_pct_change = response.data.co_pct_change;
-	    app.vue.date = response.data.date
-	    app.determine_color(app.vue.co_change)
-	});
+            app.vue.co_pct_change = response.data.co_pct_change;
+            app.vue.date = response.data.date;
+            app.determine_color(app.vue.co_change);
+        });
     };
 
     app.show_buy_menu = function(flag) {
@@ -106,14 +102,11 @@ let init = (app) => {
     app.init = () => {
         // Put here any initialization code
         let company_path = location.pathname;
-        let my_company = "";
-        // If no company was provided, the path will be 31 chars: /Stock-Market-Imitation/company
-        if (company_path.length == 31) {
+        path_elems = company_path.split(/\//);
+        let my_company = path_elems[path_elems.length-1];
+        // If no company was provided, set the default to ^GSPC
+        if (my_company === "company" || my_company === "") {
             my_company = "^GSPC";
-        }
-        // A company was provided, so take the substring after: /Stock-Market-Imitation/company/...
-        else {
-            my_company = company_path.substring(32);
         }
         // Get the company information
         axios.post(load_company_url, {co_ticker: my_company})

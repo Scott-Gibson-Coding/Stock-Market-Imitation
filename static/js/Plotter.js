@@ -1,5 +1,5 @@
 // Class to house plotting functionality
-export class Plotter{
+class Plotter{
     // Constructor
     constructor(){
         /**

@@ -52,6 +52,7 @@ def load_db():
 load_db()
 
 
+# Main index page
 @action('index')
 @action.uses('index.html', auth)
 def index():
@@ -226,7 +227,12 @@ def search_data():
     
     return dict(company_rows = company_rows)
 
-# Displays categories
+
+#################################
+# Forum links
+#################################
+
+# Displays forum topics
 @action('forum')
 @action.uses('forum.html', db, auth)
 def forum():
@@ -237,6 +243,7 @@ def forum():
         topics=topics
     )
 
+# Display a form for the user to add a forum topic
 @action('forum_add_topic', method=['GET', 'POST'])
 @action.uses('forum_form.html', db, auth)
 def forum_add_topic():
@@ -258,7 +265,7 @@ def forum_add_topic():
 @action.uses('forum_topic.html', db, auth)
 def forum_topic(topic_id = None):
     ensure_login()
-    assert topic_id is not None
+    assert topic_id != None
 
     # ensure the topic id is valid
     topic = db.forum_topic[topic_id]

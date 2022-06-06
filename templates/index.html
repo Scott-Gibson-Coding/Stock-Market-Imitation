@@ -27,9 +27,11 @@
 </style>
 
 <div class="section" id="vue-target" v-cloak index>
+    <!-- Title -->
     <div class="title is-1 p-6 mb-6" main_title>
         Stock Market Simulator
     </div>
+    <!-- Display forms for signup and login if user is not logged in -->
     [[if not user:]]
     <div class="columns is-3">
         <div class="column">
@@ -38,6 +40,7 @@
             </div>
             <!-- Sign up form -->
             <form class="form" form>
+                <!-- Email -->
                 <div class="field">
                     <div class="control has-icons-left">
                         <span class="icon is-left">
@@ -54,6 +57,7 @@
                         {{signup_email_error}}
                     </p>
                 </div>
+                <!-- First Name -->
                 <div class="field">
                     <div class="control">
                         <input v-model="signup_first_name" class="input is-rounded is-link" 
@@ -64,6 +68,7 @@
                         {{signup_first_name_error}}
                     </p>
                 </div>
+                <!-- Last Name -->
                 <div class="field">
                     <div class="control">
                         <input v-model="signup_last_name" class="input is-rounded is-link" 
@@ -74,17 +79,19 @@
                         {{signup_last_name_error}}
                     </p>
                 </div>
+                <!-- Password -->
                 <div class="field">
                     <div class="control">
                         <input v-model="signup_password" class="input is-rounded is-link" 
                         type="password" :class="{'is-danger': signup_password_error}" 
-                        v-on:keyup.enter="signup">
+                        v-on:keyup.enter="signup" placeholder="password">
                     </div>
                     <p class="help is-danger pl-3 is-size-6">
                         {{signup_password_error}}
                     </p>
                 </div>
             </form>
+            <!-- Signup Button -->
             <div class="level">
                 <div class="level-left">
                     <div class="level-item">
@@ -103,6 +110,7 @@
             </div>
             <!-- Log in form -->
             <form class="form" form>
+                <!-- Email -->
                 <div class="field">
                     <div class="control has-icons-left">
                         <span class="icon is-left">
@@ -115,16 +123,19 @@
                         {{login_email_error}}
                     </p>
                 </div>
+                <!-- Password -->
                 <div class="field">
                     <div class="control">
                         <input v-model="login_password" class="input is-rounded is-link" type="password" 
-                        :class="{'is-danger': login_password_error}" v-on:keyup.enter="login">
+                        :class="{'is-danger': login_password_error}" v-on:keyup.enter="login"
+                        placeholder="password">
                     </div>
                     <p class="help is-danger pl-3 is-size-6">
                         {{login_password_error}}
                     </p>
                 </div>
             </form>
+            <!-- Login Button -->
             <div class="level">
                 <div class="level-left">
                     <div class="level-item">
@@ -139,7 +150,7 @@
         </div>
     </div>
     [[else:]]
-    <!-- Search button -->
+    <!-- If user is logged in, display a button that takes them to Search page -->
     <div class="columns">
         <div class="column is-8">
             <div class="title">
@@ -171,5 +182,6 @@
     let init_user_url = "[[=XML(init_user_url)]]";
     let verify_email_url = "[[=XML(verify_email_url)]]";
 </script>
+<!-- Vue app -->
 <script src="js/index.js"></script>
 [[end]]

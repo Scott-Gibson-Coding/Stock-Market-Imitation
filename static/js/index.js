@@ -55,7 +55,7 @@ let init = (app) => {
         app.vue.login_generic_error = "";
     };
 
-    // checks email syntax and returns a boolean
+    // checks email syntax and returns true if valid
     app.check_email = (email) => {
         const re = /^.+@.+\..+$/;
         return email.match(re) ? email.match(re).length === 1 : false;
@@ -71,7 +71,7 @@ let init = (app) => {
         }
         
         if (!app.check_email(app.vue.signup_email)) {
-            // invalid syntax
+            // check email syntax
             app.vue.signup_email_error = "Invalid Email Syntax";
         } else {
             // query database if email already exists
@@ -90,17 +90,20 @@ let init = (app) => {
         }
     };
     
+    // Attempt to login the user, checking for empty or invalid fields
     app.login = function() {
         app.clear_error_fields();
     
         if (app.vue.login_email != "" && app.vue.login_password != "") {
             if (app.check_email(app.vue.login_email)) {
+                // if email is valid, attempt to login
                 axios.post(login_url,
                     {
                         email: app.vue.login_email,
                         password: app.vue.login_password,
                     }
                 ).then(function (response) {
+                    // login was successful
                     console.log('login attempt successful');
 
                     // init user in db.user table
@@ -113,6 +116,7 @@ let init = (app) => {
                     // reload index page
                     window.location = index_url;
                 }).catch(function (error) {
+                    // login failed, display appropriate errors.
                     console.log('an error occured');
                     if (error.response) {
                         error_msg = error.response.data.message;
@@ -132,6 +136,7 @@ let init = (app) => {
                 app.vue.login_email_error = "Invalid Email Syntax";
             }
         }
+        // empty field errors
         if (app.vue.login_email === "") {
             app.vue.login_email_error = "Please fill out this field!";
         }
@@ -140,6 +145,7 @@ let init = (app) => {
         }
     };
 
+    // Attempt to register the user, checking for empty or invalid fields
     app.signup = function(props) {
         app.clear_error_fields();
 
@@ -147,6 +153,7 @@ let init = (app) => {
             && app.vue.signup_last_name != "" && app.vue.signup_password != "") {
 
             if (app.check_email(app.vue.signup_email)) {
+                // email is valid, attempt to register the user
                 axios.post(signup_url,
                     {
                         email: app.vue.signup_email,
@@ -155,11 +162,13 @@ let init = (app) => {
                         password: app.vue.signup_password,
                     }
                 ).then(function (response) {
+                    // signup was successful, login the user
                     console.log('sign up attempt successful');
                     app.vue.login_email = app.vue.signup_email;
                     app.vue.login_password = app.vue.signup_password;
                     app.login();
                 }).catch(function (error) {
+                    // sign up failed, display appropriate errors
                     console.log('an error occured');
                     if (error.response) {
                         error_code = error.response.data.code;
@@ -177,6 +186,7 @@ let init = (app) => {
                 app.vue.signup_email_error = "Invalid Email Syntax";
             }
         }
+        // empty field errors
         if (app.vue.signup_email === "") {
             app.vue.signup_email_error = "Please fill out this field";
         }

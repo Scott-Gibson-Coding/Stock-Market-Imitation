@@ -51,10 +51,9 @@
         <div class="column notification is-dark m-1">
             <!-- Stock Preview -->
             <div class="box">
-                <h1 class="title is-4">Stock preview (click image)</h1>
-                <a href="[[=URL('company')]]">
-                    <img src="https://i.kym-cdn.com/photos/images/newsfeed/001/499/826/2f0.png">
-                </a>
+                <h1 class="title is-4">Stock Preview</h1>
+                <!-- Display graph of current top company in the table -->
+                <div class="block" id="chart_div"></div>
             </div>
         </div>
     </div>
@@ -63,8 +62,10 @@
 [[block page_scripts]]
 <!-- Loads the search-specific js for Vue -->
 <script>
-    let search_data_url = "[[=XML(search_data_url)]]"
-    let company_url = "[[=XML(company_url)]]"
+    let search_data_url = "[[=XML(search_data_url)]]";
+    let company_url = "[[=XML(company_url)]]";
+    get_history_url = "[[=XML(get_history_url)]]";
 </script>
+<script src="js/Plotter.js"></script>
 <script src="js/search.js"></script>
 [[end]]

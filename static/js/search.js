@@ -10,7 +10,6 @@ let init = (app) => {
 
     // This is the Vue data.
     app.data = {
-        proof: "Search Proof",
         company_rows: [],
         search_rows: [],
         search: "",
@@ -32,12 +31,26 @@ let init = (app) => {
                 app.vue.search_rows.push(row);
             }
         }
+        app.display_preview();
     }
 
     app.fuzzy_match = function(str1, str2){
         str1 = str1.toLowerCase()
         str2 = str2.toLowerCase()
         return str1.includes(str2) || str2.includes(str1)
+    }
+    
+    // draw a small preview of the top stock in the table
+    app.display_preview = function() {
+        axios.post(get_history_url, {
+            co_ticker: app.data.search_rows[0]['company_symbol'],
+            co_name: app.data.search_rows[0]['company_name']
+        }).then(function(response) {
+            let company_name = response.data.name;
+            let stock_history = response.data.stock_history;
+            let dates = response.data.dates;
+            plotter.plot_stock_history(dates, stock_history, "chart_div", company_name);
+        });
     }
 
     // This contains all the methods
@@ -59,12 +72,17 @@ let init = (app) => {
                 app.vue.company_rows.push(response.data.company_rows[r]);
                 app.vue.search_rows.push(response.data.company_rows[r])
             }
+            app.display_preview();
         });
     };
 
     // Call to the initializer
     app.init();
 };
+
+// Initialize Plotter
+let plotter = new Plotter();
+
 // Initialize the app object
 init(app);
 

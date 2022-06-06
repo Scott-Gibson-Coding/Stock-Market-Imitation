@@ -22,20 +22,17 @@ let init = (app) => {
         a.map((e) => {e._idx = k++;});
         return a;
     };
-    app.search_company = function(){
 
+    app.search_company = function(){
         app.vue.search_rows = []
         for(let r in app.vue.company_rows){
             let row = app.vue.company_rows[r]
 
-            if(app.fuzzy_match(row.company_name,app.vue.search) || app.fuzzy_match(row.company_symbol,app.vue.search)){
+            if (app.fuzzy_match(row.company_name,app.vue.search) || app.fuzzy_match(row.company_symbol,app.vue.search)){
                 app.vue.search_rows.push(row);
             }
         }
-
-        
     }
-
 
     app.fuzzy_match = function(str1, str2){
         str1 = str1.toLowerCase()
@@ -58,13 +55,11 @@ let init = (app) => {
     app.init = () => {
         axios.get(search_data_url).then(function (response) {
             for(let r in response.data.company_rows){
-                response.data.company_rows[r].url = company_url.concat("/".concat(response.data.company_rows[r].company_symbol))
-                app.vue.company_rows.push(response.data.company_rows[r])
-                
+                response.data.company_rows[r].url = company_url.concat("/".concat(response.data.company_rows[r].company_symbol));
+                app.vue.company_rows.push(response.data.company_rows[r]);
+                app.vue.search_rows.push(response.data.company_rows[r])
             }
         });
-
-
     };
 
     // Call to the initializer

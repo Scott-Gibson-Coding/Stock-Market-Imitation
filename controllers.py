@@ -75,7 +75,7 @@ def verify_email():
 
 
 @action('portfolio')
-@action.uses('portfolio.html', db, auth.user, url_signer)
+@action.uses('portfolio.html', db, auth, url_signer)
 def portfolio():
     ensure_login()
     return {'get_holdings_url' : URL('get_holdings'),

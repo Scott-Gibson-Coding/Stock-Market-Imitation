@@ -12,7 +12,7 @@
             <div class="block">
                 <div class="field">
                     <div class="control">
-                        <input class="input is-large" type="text" placeholder="Search for a company">
+                        <input class="input is-large" type="text" placeholder="Search for a company" v-model = "search"  @change = "search_company">
                     </div>
                 </div>
             </div>
@@ -20,36 +20,30 @@
             <div class="block">
                 <table class="table is-fullwidth is-striped is-hoverable">
                     <thead>
-                        <th>Company Name</th>
+                        <th>Name</th>
+                        <th>Symbol</th>
                         <th>Price</th>
-                        <th>Something else</th>
-                        <th>Another thing</th>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Apple</td>
-                            <td>123</td>
-                            <td>stuff</td>
-                            <td>stuff</td>
+                        <tr v-for = "r in search_rows">
+                            <td>
+                                <p>{{r.company_name}}</p>
+                            </td>
+                            <td>
+                                <p>{{r.company_symbol}}</p>
+                            </td>
+                            <td>
+                                <p>{{r.current_stock_value}}</p>
+                            </td>
+                        
+                            <td>
+                                <a class = "button is-success" v-bind:href = "r.url">
+                                    <span class = "icon"><i class = "fa fa-angle-right"></i></span>
+                                </a>
+                            </td>
                         </tr>
-                        <tr>
-                            <td>Apple</td>
-                            <td>123</td>
-                            <td>stuff</td>
-                            <td>stuff</td>
-                        </tr>
-                        <tr>
-                            <td>Apple</td>
-                            <td>123</td>
-                            <td>stuff</td>
-                            <td>stuff</td>
-                        </tr>
-                        <tr>
-                            <td>Apple</td>
-                            <td>123</td>
-                            <td>stuff</td>
-                            <td>stuff</td>
-                        </tr>
+                       
+
                     </tbody>
                 </table>
             </div>
@@ -69,9 +63,13 @@
         </div>
         
     </div>
-</section>
+</div>
 
 [[block page_scripts]]
 <!-- Loads the search-specific js for Vue -->
+<script>
+    let search_data_url = "[[=XML(search_data_url)]]"
+    let company_url = "[[=XML(company_url)]]"
+</script>
 <script src="js/search.js"></script>
 [[end]]

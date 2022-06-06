@@ -60,6 +60,7 @@ def index():
         user=user,
         login_url = URL('auth/api/login'),
         signup_url = URL('auth/api/register'),
+        init_user_url = URL('init_user'),
         verify_email_url = URL('verify_email'),
     )
 
@@ -73,6 +74,20 @@ def verify_email():
         exists = (user != None),
     )
 
+# creates new user in 'user' db if no user currently exists
+# init user balance to starting balance.
+init_user_starting_bal = 10000
+@action('init_user')
+@action.uses(db, auth)
+def init_user():
+    assert auth.get_user()
+    current_user = auth.get_user()
+    if not db(db.user.user_id == current_user['id']).select():
+        id = db.user.insert(
+            user_balance=init_user_starting_bal,
+            user_id=current_user['id'],
+        )
+    return "user initialized"
 
 @action('portfolio')
 @action.uses('portfolio.html', db, auth, url_signer)
@@ -490,4 +505,3 @@ def delete_comment():
         db(db.forum_comment.parent_idx == comment.id).delete()
     db(db.forum_comment.id == comment_id).delete()
     return "ok"
-    

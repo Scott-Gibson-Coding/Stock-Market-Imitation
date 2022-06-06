@@ -102,6 +102,15 @@ let init = (app) => {
                     }
                 ).then(function (response) {
                     console.log('login attempt successful');
+
+                    // init user in db.user table
+                    axios.get(init_user_url).then(function (response) {
+                        console.log(response)
+                    }).catch(function (error) {
+                        console.log(error);
+                    });
+
+                    // reload index page
                     window.location = index_url;
                 }).catch(function (error) {
                     console.log('an error occured');
@@ -109,7 +118,7 @@ let init = (app) => {
                         error_msg = error.response.data.message;
                         console.log(error.response.data.message);
                         if (error_msg === 'Invalid email') {
-                            app.vue.login_email_error = "Invalid Email";
+                            app.vue.login_email_error = "Unregistered Email";
                         } else if (error_msg === 'Invalid Credentials') {
                             app.vue.login_password_error = 'Wrong Password';
                         } else {

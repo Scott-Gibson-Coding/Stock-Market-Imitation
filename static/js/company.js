@@ -67,8 +67,8 @@ let init = (app) => {
     	axios.post(company_refresh_url, {
             co_ticker: app.data.co_ticker
         }).then(function (response) {
-            app.vue.co_price = response.data.co_price;
-            app.vue.co_change = response.data.co_change;
+            app.vue.co_price = response.data.co_price.toFixed(2);
+            app.vue.co_change = response.data.co_change.toFixed(2);
             app.vue.co_pct_change = response.data.co_pct_change;
             app.vue.date = response.data.date;
             app.determine_color(app.vue.co_change);
@@ -113,9 +113,9 @@ let init = (app) => {
             .then(function (response) {
                 app.vue.co_name = response.data.co_name;
                 app.vue.co_ticker = response.data.co_ticker;
-                app.vue.co_price = response.data.co_price;
+                app.vue.co_price = response.data.co_price.toFixed(2);
                 app.vue.date = response.data.date;
-                app.vue.co_change = response.data.co_change;
+                app.vue.co_change = response.data.co_change.toFixed(2);
                 app.vue.co_pct_change = response.data.co_pct_change;
             })
             // Now get the color

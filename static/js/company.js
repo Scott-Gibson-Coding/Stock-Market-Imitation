@@ -13,6 +13,7 @@ let init = (app) => {
         user_balance: 0,
         user_pfp: "",
 
+        co_id: 0,
         co_name: "",
         co_symbol: "",
         co_price: 0,
@@ -86,7 +87,7 @@ let init = (app) => {
         axios.post(buy_shares_url,
             {
                 num_shares: app.vue.buy_amount,
-                co_symbol: app.vue.co_symbol,
+                co_id: app.vue.co_id,
                 price: app.vue.co_price,
             }).then(function (response) {
                 app.reset_form(true);
@@ -159,12 +160,13 @@ let init = (app) => {
                 co_id: co_id
             }
         }).then(function (response) {
+            app.vue.co_id = response.data.co_id;
             app.vue.co_name = response.data.co_name;
             app.vue.co_symbol = response.data.co_symbol;
-            app.vue.co_price = response.data.co_price;
+            app.vue.co_price = response.data.co_price.toFixed(2);
             app.vue.date = response.data.date;
-            app.vue.co_change = response.data.co_change;
-            app.vue.co_pct_change = response.data.co_pct_change;
+            app.vue.co_change = response.data.co_change.toFixed(2);
+            app.vue.co_pct_change = response.data.co_pct_change.toFixed(2);
 
             // plot graph of company history
             google.charts.setOnLoadCallback(app.plot_history);

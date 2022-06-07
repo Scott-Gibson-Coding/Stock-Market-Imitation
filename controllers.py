@@ -156,7 +156,7 @@ def update_user_profile():
 # If no id, choose the first one in the db.
 @action('company')
 @action('company/<id:int>')
-@action.uses('company.html', db, auth)
+@action.uses('company.html', db, auth, url_signer)
 def company(id=None):
     ensure_login()
     return dict(
@@ -195,9 +195,9 @@ def load_company_data(symbol):
     co_id = my_company['id']
     co_name = my_company['company_name']
     co_symbol = symbol
-    co_price = round(my_company['current_stock_value'], 2)
-    co_change = round(my_company['changes'], 2)
-    co_pct_change = round((co_change / co_price) * 100, 2)
+    co_price = my_company['current_stock_value']
+    co_change = my_company['changes']
+    co_pct_change = (co_change / co_price) * 100
     current_date = my_company['latest_update'].strftime("%m/%d/%Y, %H:%M:%S") 
     return dict(
         co_id=co_id,
@@ -213,19 +213,18 @@ def load_company_data(symbol):
 @action.uses(db, auth, url_signer.verify())
 def buy_shares():
     num_shares = request.json.get('num_shares')
-    symbol = request.json.get('co_symbol')
-    co_id = load_company_data(symbol)['co_id']
+    co_id = request.json.get('co_id')
     value = request.json.get('price')
-    user_id = get_user_id()
-    user = db(db.user.user_id == user_id).select().first()
     transaction = db.transaction.insert(
         company_id=co_id,
-        user_id=user_id,
         transaction_type='buy',
         count=num_shares,
         value_per_share=value,
     )
+
     # Update balance
+    user_id = get_user_id()
+    user = db(db.user.user_id == user_id).select().first()
     new_balance = user.user_balance - float(value) * int(num_shares)
     db(db.user.user_id == user_id).update(user_balance=new_balance)
     return None
@@ -235,22 +234,20 @@ def buy_shares():
 @action.uses(db, auth, url_signer.verify())
 def sell_shares():
     num_shares = request.json.get('num_shares')
-    symbol = request.json.get('co_symbol')
-    co_id = load_company_data(symbol)['co_id']
+    co_id = request.json.get('co_id')
     value = request.json.get('price')
-    user_id = get_user_id()
-    user = db(db.user.user_id == user_id).select().first()
     transaction = db.transaction.insert(
         company_id=co_id,
-        user_id=user_id,
         transaction_type='sell',
         count=num_shares,
         value_per_share=value,
     )
     # Update balance
+    user_id = get_user_id()
+    user = db(db.user.user_id == user_id).select().first()
     new_balance = user.user_balance + float(value) * int(num_shares)
     db(db.user.user_id == user_id).update(user_balance=new_balance)
-    return None
+    return "ok"
 
 
 # Return the history of a company to graph
@@ -264,8 +261,8 @@ def get_stock_history():
     # Get stock history
     hist = []
     times = []
-    # We will do 20 steps from start up time to current time by defaulti
-    steps = 200
+    # We will do 30 steps from start up time to current time by default
+    steps = 30
     minutes = 5
     duration = 60 * minutes
     start_time = simulator.current_time - datetime.timedelta(seconds=duration)

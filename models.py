@@ -51,7 +51,7 @@ db.define_table(
 db.define_table(
     'transaction',
     Field('company_id', 'reference company'), # The company whose stock this is
-    Field('user_id', 'reference auth_user'), # The owner of this transaction
+    Field('user_id', 'reference auth_user', default=get_user_id), # The owner of this transaction
     Field('transaction_type', requires=IS_IN_SET(['buy', 'sell'])),
     Field('count', type='float', requires=IS_FLOAT_IN_RANGE(0, None)),
     Field('value_per_share', type='float', requires=IS_FLOAT_IN_RANGE(0, None)),

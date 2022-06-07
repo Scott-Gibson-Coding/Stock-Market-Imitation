@@ -30,7 +30,7 @@ from py4web.utils.form import Form, FormStyleBulma
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from py4web.utils.url_signer import URLSigner
-from .models import get_user_email, get_time
+from .models import get_user_id, get_user_email, get_time
 from .StockSimulator import *
 from .CompanyData import *
 
@@ -81,7 +81,7 @@ def verify_email():
 
 # creates new user in 'user' db if no user currently exists
 # init user balance to starting balance.
-init_user_starting_bal = 10000
+init_user_starting_bal = 100000
 @action('init_user')
 @action.uses(db, auth)
 def init_user():
@@ -152,9 +152,8 @@ def update_user_profile():
 # Company
 #################
 
-# If no symbol provided, default to S&P 500
-# For now, these companies are available (go to /company/symbol):
-# ^GSPC, AAPL, MSFT, AMZN, GOOGL, GOOG, TSLA, BRK.B, JNJ, UNH, FB, NVDA, XOM, JPM, PG, V, CVX, HD, MA, PFE, ABBV
+# Load a page that displays data for the company id requested.
+# If no id, choose the first one in the db.
 @action('company')
 @action('company/<id:int>')
 @action.uses('company.html', db, auth)
@@ -164,7 +163,52 @@ def company(id=None):
         get_history_url=URL('get_stock_history'),
         load_company_url=URL('load_company'),
         get_user_info_url=URL('get_user_info'),
+        buy_shares_url=URL('buy_shares', signer=url_signer),
+        sell_shares_url=URL('sell_shares', signer=url_signer),
     )
+
+@action('buy_shares', method="POST")
+@action.uses(db, auth, url_signer.verify())
+def buy_shares():
+    num_shares = request.json.get('num_shares')
+    ticker = request.json.get('ticker')
+    co_id = load_company_data(ticker)['co_id']
+    value = request.json.get('price')
+    user_id = get_user_id()
+    user = db(db.user.user_id == user_id).select().first()
+    transaction = db.transaction.insert(
+        company_id=co_id,
+        user_id=user_id,
+        transaction_type='buy',
+        count=num_shares,
+        value_per_share=value,
+    )
+    # Update balance
+    new_balance = user.user_balance - float(value) * int(num_shares)
+    db(db.user.user_id == user_id).update(user_balance=new_balance)
+    return None
+
+
+@action('sell_shares', method="POST")
+@action.uses(db, auth, url_signer.verify())
+def sell_shares():
+    num_shares = request.json.get('num_shares')
+    ticker = request.json.get('ticker')
+    co_id = load_company_data(ticker)['co_id']
+    value = request.json.get('price')
+    user_id = get_user_id()
+    user = db(db.user.user_id == user_id).select().first()
+    transaction = db.transaction.insert(
+        company_id=co_id,
+        user_id=user_id,
+        transaction_type='sell',
+        count=num_shares,
+        value_per_share=value,
+    )
+    # Update balance
+    new_balance = user.user_balance + float(value) * int(num_shares)
+    db(db.user.user_id == user_id).update(user_balance=new_balance)
+    return None
 
 
 @action('load_company')

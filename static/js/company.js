@@ -24,6 +24,8 @@ let init = (app) => {
         is_flat: false,
         buy_menu: false,
         sell_menu: false,
+        buy_amount: 0,
+        sell_amount: 0,
     };
 
     app.enumerate = (a) => {
@@ -47,8 +49,8 @@ let init = (app) => {
                 co_symbol: app.vue.co_symbol
             }
         }).then(function (response) {
-            app.vue.co_price = response.data.co_price;
-            app.vue.co_change = response.data.co_change;
+            app.vue.co_price = response.data.co_price.toFixed(2);
+            app.vue.co_change = response.data.co_change.toFixed(2);
             app.vue.co_pct_change = response.data.co_pct_change;
             app.vue.date = response.data.date;
 
@@ -80,6 +82,41 @@ let init = (app) => {
         app.vue.sell_menu = flag;
     };
 
+    app.buy_shares = function() {
+        axios.post(buy_shares_url,
+            {
+                num_shares: app.vue.buy_amount,
+                ticker: app.vue.co_ticker,
+                price: app.vue.co_price,
+            }).then(function (response) {
+                app.reset_form(true);
+                app.show_buy_menu(false);
+            });
+    };
+
+    app.sell_shares = function() {
+        axios.post(sell_shares_url,
+            {
+                num_shares: app.vue.sell_amount,
+                ticker: app.vue.co_ticker,
+                price: app.vue.co_price,
+            }).then(function (response) {
+                app.reset_form(false);
+                app.show_sell_menu(false);
+            });
+    }
+
+    // True: buy
+    // False: sell
+    app.reset_form = function(flag) {
+        if (flag) {
+            app.vue.buy_amount = 0;
+        }
+        else {
+            app.vue.sell_amount = 0;
+        }
+    }
+
     // This contains all the methods
     app.methods = {
         determine_color: app.determine_color,
@@ -87,6 +124,9 @@ let init = (app) => {
         show_buy_menu: app.show_buy_menu,
         show_sell_menu: app.show_sell_menu,
         plot_history: app.plot_history,
+        buy_shares: app.buy_shares,
+        sell_shares: app.sell_shares,
+        reset_form: app.reset_form,
     };
 
     // This creates the Vue instance
@@ -125,9 +165,6 @@ let init = (app) => {
             app.vue.date = response.data.date;
             app.vue.co_change = response.data.co_change;
             app.vue.co_pct_change = response.data.co_pct_change;
-            
-            // Now get the color of the text
-            app.determine_color(app.vue.co_change);
 
             // plot graph of company history
             google.charts.setOnLoadCallback(app.plot_history);

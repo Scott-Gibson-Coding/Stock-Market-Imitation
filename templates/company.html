@@ -66,70 +66,85 @@
                 </div>
             </div>
 
-            <!-- Stock stats -->
-            <div class="box">
-                <p>Stock stats:</p>
-                <p>PE</p>
-                <p>EPS</p>
-                <p>Market Cap</p>
-                <p>Div Yield</p>
-                <p>Future EPS</p>
+         <!-- Stock stats -->
+         <div class="box">
+            <p>Stock stats:</p>
+            <p>PE</p>
+            <p>EPS</p>
+            <p>Market Cap</p>
+            <p>Div Yield</p>
+            <p>Future EPS</p>
+         </div>
+         <!-- Transactions -->
+         <div class="box has-text-centered">
+            <a class="button is-success" @click="show_buy_menu(true)">
+               <span class="icon">
+                  <i class="fa fa-plus-circle"></i>
+               </span>
+               <span>Buy</span>
+            </a>
+            <a class="button is-danger" @click="show_sell_menu(true)">
+               <span class="icon">
+                  <i class="fa fa-minus-circle"></i>
+               </span>
+               <span>Sell</span>
+            </a>
+            <!-- TODO How many shares you will buy/sell, current price, how many shares would be your new total -->
+            <!-- Buy modal popup -->
+            <div class="modal" :class="{'is-active': buy_menu}">
+               <div class="modal-background" @click="show_buy_menu(false)"></div>
+               <div class="modal-card">
+                  <header class="modal-card-head">
+                     <p class="modal-card-title">Modal title</p>
+                     <button class="delete" aria-label="close" @click="show_buy_menu(false)"></button>
+                  </header>
+                  <section class="modal-card-body">
+                     <h1 class="title">Buy {{co_name}} ({{co_symbol}})?</h1>
+                     <h2 class="subtitle">Enter the number of shares you would like to purchase in the box.</h2>
+                     <!-- Text box for amount to buy -->
+                     <div class="container block">
+                        <div class="form">
+                           <div class="field">
+                              <div class="control">
+                                 <input type="number" v-model="buy_amount" class="input">
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </section>
+                  <footer class="modal-card-foot">
+                     <input type="submit" class="button is-success" @click="buy_shares" value="Confirm Purchase">
+                     <input type="submit" class="button" @click="show_buy_menu(false)" value="Cancel">
+                  </footer>
+               </div>
             </div>
-            <!-- Transactions -->
-            <div class="box has-text-centered">
-                <a class="button is-success" @click="show_buy_menu(true)">
-                    <span class="icon">
-                        <i class="fa fa-plus-circle"></i>
-                    </span>
-                    <span>Buy</span>
-                </a>
-                <a class="button is-danger" @click="show_sell_menu(true)">
-                    <span class="icon">
-                        <i class="fa fa-minus-circle"></i>
-                    </span>
-                    <span>Sell</span>
-                </a>
-                <!-- TODO How many shares you will buy/sell, current price, how many shares would be your new total -->
-                <!-- Buy modal popup -->
-                <div class="modal" :class="{'is-active': buy_menu}">
-                    <div class="modal-background" @click="show_buy_menu(false)"></div>
-                    <div class="modal-card">
-                        <header class="modal-card-head">
-                            <p class="modal-card-title">Modal title</p>
-                            <button class="delete" aria-label="close" @click="show_buy_menu(false)"></button>
-                        </header>
-                        <section class="modal-card-body">
-                            <h1 class="title">Buy {{co_name}} ({{co_symbol}})?</h1>
-                            <h2 class="subtitle">Enter the number of shares you would like to purchase in the box.</h2>
-                            <!-- TODO text box entry and form submission -->
-                        </section>
-                        <footer class="modal-card-foot">
-                            <!-- TODO implement buy functionality; for now, simply close the modal -->
-                            <button class="button is-success" @click="show_buy_menu(false)">Confirm Purchase</button>
-                            <button class="button" @click="show_buy_menu(false)">Cancel</button>
-                        </footer>
-                    </div>
-                </div>
-                <!-- Sell modal popup -->
-                <div class="modal" :class="{'is-active': sell_menu}">
-                    <div class="modal-background" @click="show_sell_menu(false)"></div>
-                    <div class="modal-card">
-                        <header class="modal-card-head">
-                            <p class="modal-card-title">Modal title</p>
-                            <button class="delete" aria-label="close" @click="show_sell_menu(false)"></button>
-                        </header>
-                        <section class="modal-card-body">
-                            <h1 class="title">Sell {{co_name}} ({{co_symbol}})?</h1>
-                            <h2 class="subtitle">Enter the number of shares you would like to sell in the box.</h2>
-                            <!-- TODO text box entry and form submission -->
-                        </section>
-                        <footer class="modal-card-foot">
-                            <!-- TODO implement sell functionality; for now, simply close the modal -->
-                            <button class="button is-success" @click="show_sell_menu(false)">Confirm Sale</button>
-                            <button class="button" @click="show_sell_menu(false)">Cancel</button>
-                        </footer>
-                    </div>
-                </div>
+            <!-- Sell modal popup -->
+            <div class="modal" :class="{'is-active': sell_menu}">
+               <div class="modal-background" @click="show_sell_menu(false)"></div>
+               <div class="modal-card">
+                  <header class="modal-card-head">
+                     <p class="modal-card-title">Modal title</p>
+                     <button class="delete" aria-label="close" @click="show_sell_menu(false)"></button>
+                  </header>
+                  <section class="modal-card-body">
+                     <h1 class="title">Sell {{co_name}} ({{co_ticker}})?</h1>
+                     <h2 class="subtitle">Enter the number of shares you would like to sell in the box.</h2>
+                     <!-- Text box for amount to sell-->
+                     <div class="container block">
+                        <div class="form">
+                           <div class="field">
+                              <div class="control">
+                                 <input type="number" v-model="sell_amount" class="input">
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </section>
+                  <footer class="modal-card-foot">
+                     <input type="submit" class="button is-success" @click="sell_shares" value="Confirm Sale">
+                     <input type="submit" class="button" @click="show_sell_menu(false)" value="Cancel">
+                  </footer>
+               </div>
             </div>
         </div>
     </div>
@@ -141,6 +156,8 @@
     let get_history_url = "[[=XML(get_history_url)]]";
     let load_company_url = "[[=XML(load_company_url)]]";
     let get_user_info_url = "[[=XML(get_user_info_url)]]";
+    let buy_shares_url = "[[=XML(buy_shares_url)]]";
+    let sell_shares_url = "[[=XML(sell_shares_url)]]";
 </script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script src="js/Plotter.js"></script>

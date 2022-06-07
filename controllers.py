@@ -154,6 +154,7 @@ def buy_shares():
     co_id = load_company_data(ticker)['co_id']
     value = request.json.get('price')
     user_id = get_user_id()
+    user = db(db.user.user_id == user_id).select().first()
     transaction = db.transaction.insert(
         company_id=co_id,
         user_id=user_id,
@@ -161,7 +162,9 @@ def buy_shares():
         count=num_shares,
         value_per_share=value,
     )
-    # TODO update balance
+    # Update balance
+    new_balance = user.user_balance - float(value) * int(num_shares)
+    db(db.user.user_id == user_id).update(user_balance=new_balance)
     return None
 
 
@@ -173,6 +176,7 @@ def sell_shares():
     co_id = load_company_data(ticker)['co_id']
     value = request.json.get('price')
     user_id = get_user_id()
+    user = db(db.user.user_id == user_id).select().first()
     transaction = db.transaction.insert(
         company_id=co_id,
         user_id=user_id,
@@ -180,7 +184,9 @@ def sell_shares():
         count=num_shares,
         value_per_share=value,
     )
-    # TODO update balance
+    # Update balance
+    new_balance = user.user_balance + float(value) * int(num_shares)
+    db(db.user.user_id == user_id).update(user_balance=new_balance)
     return None
 
 

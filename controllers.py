@@ -220,11 +220,12 @@ def get_stock_history():
     hist = []
     times = []
     # We will do 20 steps from start up time to current time by defaulti
-    steps = 20
+    steps = 200
     minutes = 5
     duration = 60 * minutes
     start_time = simulator.current_time - datetime.timedelta(seconds=duration)
 
+    
     for i in range(steps + 1):
         times.append(start_time + datetime.timedelta(seconds = i * duration // steps))
     for t in times:

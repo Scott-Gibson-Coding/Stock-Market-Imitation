@@ -63,7 +63,7 @@ class Plotter {
             title: title,
             colors: [color],
             hAxis : {
-                title: "Date",
+                title: "Date (local)",
                 format: 'HH:mm:ss',
                 gridlines:{
                     count: 5,

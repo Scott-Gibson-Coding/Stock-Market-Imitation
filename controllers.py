@@ -52,6 +52,10 @@ def load_db():
 load_db()
 
 
+##############
+# Index
+##############
+
 # Main index page
 @action('index')
 @action.uses('index.html', auth)
@@ -90,6 +94,11 @@ def init_user():
         )
     return "user initialized"
 
+
+#####################
+# Portfolio
+#####################
+
 @action('portfolio')
 @action.uses('portfolio.html', db, auth, url_signer)
 def portfolio():
@@ -98,9 +107,10 @@ def portfolio():
             'get_user_info_url' : URL('get_user_info'),
             'update_user_profile_url' : URL('update_user_profile', signer=url_signer)}
 
-@action('get_holdings', method='POST')
-@action.uses(db, auth.user)
+@action('get_holdings')
+@action.uses(db, auth)
 def get_holdings():
+    ensure_login()
     user_id = auth.get_user().get('id')
     holdings = get_portfolio(user_id)['holdings']
     holdings = [{'company_name' : (c := db.company[k]).company_name, 
@@ -110,9 +120,10 @@ def get_holdings():
                  'bought_price' : get_avg_bought_price(user_id, k)} for k,v in holdings.items()]
     return {'holdings' : holdings}
 
-@action('get_user_info', method='POST')
-@action.uses(db, auth.user)
+@action('get_user_info')
+@action.uses(db, auth)
 def get_user_info():
+    ensure_login()
     user_id = auth.get_user().get('id')
     fn = auth.get_user().get('first_name')
     ln = auth.get_user().get('last_name')
@@ -120,7 +131,7 @@ def get_user_info():
     return {'first_name' : fn, 'last_name' : ln, 'balance' : user.user_balance, 'pfp' : user.pfp}
 
 @action('update_user_profile', method='POST')
-@action.uses(db, auth.user, url_signer.verify())
+@action.uses(db, auth, url_signer.verify())
 def update_user_profile():
     fn = request.json.get('first_name')
     ln = request.json.get('last_name')
@@ -131,6 +142,44 @@ def update_user_profile():
         db(db.user.user_id == id).update(pfp=pfp)
     return 'OK'
 
+
+#################
+# Company
+#################
+
+# If no symbol provided, default to S&P 500
+# For now, these companies are available (go to /company/symbol):
+# ^GSPC, AAPL, MSFT, AMZN, GOOGL, GOOG, TSLA, BRK.B, JNJ, UNH, FB, NVDA, XOM, JPM, PG, V, CVX, HD, MA, PFE, ABBV
+@action('company')
+@action('company/<id:int>')
+@action.uses('company.html', db, auth)
+def company(id=None):
+    ensure_login()
+    return dict(
+        get_history_url=URL('get_stock_history'),
+        load_company_url=URL('load_company'),
+    )
+
+
+@action('load_company')
+@action.uses(db)
+def load_company():
+    co_symbol = request.params.get('co_symbol')
+    if co_symbol == None:
+        # get symbol from db
+        co_id = int(request.params.get('co_id'))
+        assert isinstance(co_id, int)
+        if co_id < 0:
+            # get first company in db
+            comp = db(db.company).select().first()
+        else:
+            # match company with id
+            comp = db.company[co_id]
+        assert comp != None
+        co_symbol = comp['company_symbol']
+
+    # Get company info from db
+    return load_company_data(co_symbol)
 
 # Loads data relevant to the company matching the symbol
 def load_company_data(symbol):
@@ -153,28 +202,8 @@ def load_company_data(symbol):
         date=current_date,
     )
 
-
-# If no symbol provided, default to S&P 500
-# For now, these companies are available (go to /company/symbol):
-# ^GSPC, AAPL, MSFT, AMZN, GOOGL, GOOG, TSLA, BRK.B, JNJ, UNH, FB, NVDA, XOM, JPM, PG, V, CVX, HD, MA, PFE, ABBV
-@action('company')
-@action('company/<symbol>')
-@action.uses('company.html', db, auth)
-def company(symbol='^GSPC'):
-    ensure_login()
-    return dict(
-        get_history_url=URL('get_stock_history'),
-        load_company_url=URL('load_company'),
-    )
-
-
-@action('load_company')
-@action.uses(db)
-def load_company():
-    # Get company info from db
-    return load_company_data(request.params.get('co_symbol'))
-
-
+# Return the history of a company to graph
+# currently set to return latest five minutes
 @action('get_stock_history')
 @action.uses(db)
 def get_stock_history():
@@ -201,6 +230,10 @@ def get_stock_history():
     )
 
 
+###################
+# Search
+###################
+
 @action('search')
 @action.uses('search.html', db, auth)
 def search():
@@ -223,7 +256,7 @@ def search_data():
 
 
 #################################
-# Forum links
+# Forum
 #################################
 
 # Displays forum topics
@@ -358,9 +391,9 @@ def forum_delete_post(post_id=None):
     redirect(URL('forum'))
 
 
-####
+#######################################
 # Server calls from JS for the Forum
-####
+#######################################
 
 @action('get_post/<post_id:int>')
 @action.uses(db, auth)

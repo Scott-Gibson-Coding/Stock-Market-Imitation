@@ -70,10 +70,11 @@ let init = (app) => {
     app.init = () => {
         axios.get(search_data_url).then(function (response) {
             for(let r in response.data.company_rows){
-                response.data.company_rows[r].url = company_url.concat("/".concat(response.data.company_rows[r].company_symbol));
+                response.data.company_rows[r].url = company_url.concat("/".concat(response.data.company_rows[r].id));
                 app.vue.company_rows.push(response.data.company_rows[r]);
                 app.vue.search_rows.push(response.data.company_rows[r])
             }
+            console.log(app.vue.company_rows[0]);
 
             google.charts.setOnLoadCallback(app.display_preview);
         });

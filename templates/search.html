@@ -35,11 +35,11 @@
                                 <p>{{r.company_symbol}}</p>
                             </td>
                             <td>
-                                <p>{{r.current_stock_value}}</p>
+                                <p>{{r.current_stock_value.toFixed(3)}}</p>
                             </td>
                             <!-- Visit company page button -->
                             <td>
-                                <a class = "button is-success" v-bind:href = "r.url">
+                                <a class = "button is-success" v-bind:href="r.url">
                                     <span class = "icon"><i class = "fa fa-angle-right"></i></span>
                                 </a>
                             </td>

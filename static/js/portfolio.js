@@ -26,13 +26,13 @@ let init = (app) => {
     };
 
     app.get_holdings = function() {
-        axios.post(get_holdings_url, {}).then(function(r) {
+        axios.get(get_holdings_url, {}).then(function(r) {
             app.vue.holdings = r.data.holdings;
         });
     }
 
     app.get_user_info = function() {
-        axios.post(get_user_info_url).then(function(r) {
+        axios.get(get_user_info_url).then(function(r) {
             app.vue.user_info = r.data;
             app.vue.profile_fn = r.data.first_name;
             app.vue.profile_ln = r.data.last_name;

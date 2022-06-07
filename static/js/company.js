@@ -30,28 +30,16 @@ let init = (app) => {
 
     // Determine color of price
     app.determine_color = function(change) {
-        if (change > 0) {
-            app.vue.is_green = true;
-            app.vue.is_red = false;
-            app.vue.is_flat = false;
-        }
-        else if (change < 0) {
-            app.vue.is_green = false;
-            app.vue.is_red = true;
-            app.vue.is_flat = false;
-        }
-        else {
-            app.vue.is_green = false;
-            app.vue.is_red = false;
-            app.vue.is_flat = true;
-        }
+        app.vue.is_green = change > 0;
+        app.vue.is_red = change < 0;
+        app.vue.is_flat = change === 0;
     };
     
     // Get updated stock prices
     app.refresh_quote = function() {
     	axios.get(load_company_url, {
             params: {
-                co_symbol: app.data.co_symbol
+                co_symbol: app.vue.co_symbol
             }
         }).then(function (response) {
             app.vue.co_price = response.data.co_price;
@@ -104,15 +92,16 @@ let init = (app) => {
         // Put here any initialization code
         let company_path = location.pathname;
         path_elems = company_path.split(/\//);
-        let my_company = path_elems[path_elems.length-1];
-        // If no company was provided, set the default to ^GSPC
-        if (my_company === "company" || my_company === "") {
-            my_company = "^GSPC";
+        let co_id = path_elems[path_elems.length-1];
+        // If no company was provided, set the default to the
+        // first company in the db
+        if (co_id === "company" || co_id === "") {
+            co_id = -1;
         }
         // Get the company information
         axios.get(load_company_url, {
             params: {
-                co_symbol: my_company
+                co_id: co_id
             }
         }).then(function (response) {
             app.vue.co_name = response.data.co_name;
@@ -122,7 +111,7 @@ let init = (app) => {
             app.vue.co_change = response.data.co_change;
             app.vue.co_pct_change = response.data.co_pct_change;
             
-            // Now get the color
+            // Now get the color (BUG)
             app.determine_color(app.vue.co_change);
 
             // plot graph of company history

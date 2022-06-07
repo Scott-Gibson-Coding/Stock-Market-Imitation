@@ -8,6 +8,11 @@ let init = (app) => {
 
     // This is the Vue data.
     app.data = {
+        // user data
+        user_name: "",
+        user_balance: 0,
+        user_pfp: "",
+
         co_name: "",
         co_symbol: "",
         co_price: 0,
@@ -92,7 +97,14 @@ let init = (app) => {
     });
 
     app.init = () => {
-        // Put here any initialization code
+        // request user info
+        axios.get(get_user_info_url).then(function (response) {
+            app.vue.user_name = response.data.first_name + " " + response.data.last_name;
+            app.vue.user_balance = response.data.balance;
+            app.vue.user_pfp = response.data.pfp;
+        });
+
+        // split the pathname to get the company id
         let company_path = location.pathname;
         path_elems = company_path.split(/\//);
         let co_id = path_elems[path_elems.length-1];

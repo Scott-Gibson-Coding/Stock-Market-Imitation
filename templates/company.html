@@ -4,145 +4,144 @@
     [v-cloak] {
         display: none;
     }
-</style>    
+</style>
 
 <div class="section" id="vue-target" v-cloak>
-   <div class="columns">
-      <div class="column is-two-thirds notification is-dark m-1">
-         <!-- Back button -->
-         <div class="block">
-            <a class="button is-link" href="[[=URL('search')]]">
-               <span class="icon">
-                  <i class="fa fa-backward"></i>
-               </span>
-               <span>Back to Search</span>
-            </a>
-            <a class="button is-warning is-pulled-right" @click="refresh_quote(co_symbol)">
-               <span class="icon">
-                  <i class="fa fa-refresh"></i>
-               </span>
-               <span>Refresh Quote</span>
-            </a>
-         </div>
+    <div class="columns">
+        <div class="column is-two-thirds notification is-dark m-1">
+            <!-- Back button -->
+            <div class="block">
+                <a class="button is-link" href="[[=URL('search')]]">
+                    <span class="icon">
+                        <i class="fa fa-backward"></i>
+                    </span>
+                    <span>Back to Search</span>
+                </a>
+                <a class="button is-warning is-pulled-right" @click="refresh_quote(co_symbol)">
+                    <span class="icon">
+                        <i class="fa fa-refresh"></i>
+                    </span>
+                    <span>Refresh Quote</span>
+                </a>
+            </div>
 
-         <!-- Company and price information -->
-         <div class="block">
+            <!-- Company and price information -->
+            <div class="block">
+                <div class="box">
+                    <!-- Company Name, Symbol, Price, % Change, Date, Chart -->
+                    <h1 class="title">{{co_name}} ({{co_symbol}})</h1>
+                    <h2 class="subtitle is-size-6">Prices are shown in USD.</h2>
+                    <div class="is-size-3">
+                        {{co_price}}
+                    </div>
+                    <!-- Within the selected time period: green if up, red if down, grey if unchanged -->
+                    <div class="is-size-4"
+                        :class="{'has-text-success': is_green, 'has-text-danger': is_red, 'has-text-grey': is_flat}">
+                        <span v-if="is_green">+</span>{{co_change}}
+                        (<span v-if="is_green">+</span>{{co_pct_change}}%)
+                    </div>
+                    <div class="is-size-6">Price as of: {{date}} EST</div>
+                </div>
+
+                <!-- price chart -->
+                <div class="block" id="chart_div"></div>
+            </div>
+        </div>
+
+        <div class="column notification is-dark m-1">
+            <!-- User -->
             <div class="box">
-               <!-- Company Name, Symbol, Price, % Change, Date, Chart -->
-               <h1 class="title">{{co_name}} ({{co_symbol}})</h1>
-               <h2 class="subtitle is-size-6">Prices are shown in USD.</h2>
-               <div class="is-size-3">
-                  {{co_price}}
-               </div>
-               <!-- Within the selected time period: green if up, red if down, grey if unchanged -->
-               <div class="is-size-4"
-                    :class="{'has-text-success': is_green, 'has-text-danger': is_red, 'has-text-grey': is_flat}">
-		       <span v-if="is_green">+</span>{{co_change}}
-		       (<span v-if="is_green">+</span>{{co_pct_change}}%)
-               </div>
-	       <div class="is-size-6">Price as of: {{date}} EST</div>
+                <div class="columns">
+                    <!-- Pic -->
+                    <div class="column is-4">
+                        <figure class="image">
+                            <img :src="user_pfp">
+                        </figure>
+                    </div>
+                    <!-- User Info -->
+                    <div class="column">
+                        <p class="is-size-4">Name: {{user_name}}</p>
+                        <p class="is-size-5">Net Worth: TODO</p>
+                        <p class="is-size-5">Available Balance: ${{user_balance}}</p>
+                    </div>
+                </div>
             </div>
 
-            <!-- price chart -->
-            <div class="block" id="chart_div"></div>
-         </div>
-      </div>
-
-      <div class="column notification is-dark m-1">
-         <!-- User -->
-         <div class="box">
-            <div class="columns">
-               <!-- Pic -->
-               <div class="column">
-                  <div class="box">
-                     Profile Pic
-                  </div>
-               </div>
-               <!-- Info -->
-               <div class="column">
-                  <!-- TODO If user is logged in, get first_name and last_name from auth.user -->
-                  <p>Name</p>
-                  <p>Net Worth</p>
-                  <!-- TODO Get from user db -->
-                  <p>Available Balance</p>
-               </div>
+            <!-- Stock stats -->
+            <div class="box">
+                <p>Stock stats:</p>
+                <p>PE</p>
+                <p>EPS</p>
+                <p>Market Cap</p>
+                <p>Div Yield</p>
+                <p>Future EPS</p>
             </div>
-         </div>
-
-         <!-- Stock stats -->
-         <div class="box">
-            <p>Stock stats:</p>
-            <p>PE</p>
-            <p>EPS</p>
-            <p>Market Cap</p>
-            <p>Div Yield</p>
-            <p>Future EPS</p>
-         </div>
-         <!-- Transactions -->
-         <div class="box has-text-centered">
-            <a class="button is-success" @click="show_buy_menu(true)">
-               <span class="icon">
-                  <i class="fa fa-plus-circle"></i>
-               </span>
-               <span>Buy</span>
-            </a>
-            <a class="button is-danger" @click="show_sell_menu(true)">
-               <span class="icon">
-                  <i class="fa fa-minus-circle"></i>
-               </span>
-               <span>Sell</span>
-            </a>
-            <!-- TODO How many shares you will buy/sell, current price, how many shares would be your new total -->
-            <!-- Buy modal popup -->
-            <div class="modal" :class="{'is-active': buy_menu}">
-               <div class="modal-background" @click="show_buy_menu(false)"></div>
-               <div class="modal-card">
-                  <header class="modal-card-head">
-                     <p class="modal-card-title">Modal title</p>
-                     <button class="delete" aria-label="close" @click="show_buy_menu(false)"></button>
-                  </header>
-                  <section class="modal-card-body">
-                     <h1 class="title">Buy {{co_name}} ({{co_symbol}})?</h1>
-                     <h2 class="subtitle">Enter the number of shares you would like to purchase in the box.</h2>
-                     <!-- TODO text box entry and form submission -->
-                  </section>
-                  <footer class="modal-card-foot">
-                     <!-- TODO implement buy functionality; for now, simply close the modal -->
-                     <button class="button is-success" @click="show_buy_menu(false)">Confirm Purchase</button>
-                     <button class="button" @click="show_buy_menu(false)">Cancel</button>
-                  </footer>
-               </div>
+            <!-- Transactions -->
+            <div class="box has-text-centered">
+                <a class="button is-success" @click="show_buy_menu(true)">
+                    <span class="icon">
+                        <i class="fa fa-plus-circle"></i>
+                    </span>
+                    <span>Buy</span>
+                </a>
+                <a class="button is-danger" @click="show_sell_menu(true)">
+                    <span class="icon">
+                        <i class="fa fa-minus-circle"></i>
+                    </span>
+                    <span>Sell</span>
+                </a>
+                <!-- TODO How many shares you will buy/sell, current price, how many shares would be your new total -->
+                <!-- Buy modal popup -->
+                <div class="modal" :class="{'is-active': buy_menu}">
+                    <div class="modal-background" @click="show_buy_menu(false)"></div>
+                    <div class="modal-card">
+                        <header class="modal-card-head">
+                            <p class="modal-card-title">Modal title</p>
+                            <button class="delete" aria-label="close" @click="show_buy_menu(false)"></button>
+                        </header>
+                        <section class="modal-card-body">
+                            <h1 class="title">Buy {{co_name}} ({{co_symbol}})?</h1>
+                            <h2 class="subtitle">Enter the number of shares you would like to purchase in the box.</h2>
+                            <!-- TODO text box entry and form submission -->
+                        </section>
+                        <footer class="modal-card-foot">
+                            <!-- TODO implement buy functionality; for now, simply close the modal -->
+                            <button class="button is-success" @click="show_buy_menu(false)">Confirm Purchase</button>
+                            <button class="button" @click="show_buy_menu(false)">Cancel</button>
+                        </footer>
+                    </div>
+                </div>
+                <!-- Sell modal popup -->
+                <div class="modal" :class="{'is-active': sell_menu}">
+                    <div class="modal-background" @click="show_sell_menu(false)"></div>
+                    <div class="modal-card">
+                        <header class="modal-card-head">
+                            <p class="modal-card-title">Modal title</p>
+                            <button class="delete" aria-label="close" @click="show_sell_menu(false)"></button>
+                        </header>
+                        <section class="modal-card-body">
+                            <h1 class="title">Sell {{co_name}} ({{co_symbol}})?</h1>
+                            <h2 class="subtitle">Enter the number of shares you would like to sell in the box.</h2>
+                            <!-- TODO text box entry and form submission -->
+                        </section>
+                        <footer class="modal-card-foot">
+                            <!-- TODO implement sell functionality; for now, simply close the modal -->
+                            <button class="button is-success" @click="show_sell_menu(false)">Confirm Sale</button>
+                            <button class="button" @click="show_sell_menu(false)">Cancel</button>
+                        </footer>
+                    </div>
+                </div>
             </div>
-            <!-- Sell modal popup -->
-            <div class="modal" :class="{'is-active': sell_menu}">
-               <div class="modal-background" @click="show_sell_menu(false)"></div>
-               <div class="modal-card">
-                  <header class="modal-card-head">
-                     <p class="modal-card-title">Modal title</p>
-                     <button class="delete" aria-label="close" @click="show_sell_menu(false)"></button>
-                  </header>
-                  <section class="modal-card-body">
-                     <h1 class="title">Sell {{co_name}} ({{co_symbol}})?</h1>
-                     <h2 class="subtitle">Enter the number of shares you would like to sell in the box.</h2>
-                     <!-- TODO text box entry and form submission -->
-                  </section>
-                  <footer class="modal-card-foot">
-                     <!-- TODO implement sell functionality; for now, simply close the modal -->
-                     <button class="button is-success" @click="show_sell_menu(false)">Confirm Sale</button>
-                     <button class="button" @click="show_sell_menu(false)">Cancel</button>
-                  </footer>
-               </div>
-            </div>
-         </div>
-      </div>
-   </div>
+        </div>
+    </div>
 </div>
 
 [[block page_scripts]]
 <!-- Loads the company-specific js for Vue -->
 <script>
-   let get_history_url = "[[=XML(get_history_url)]]";
-   let load_company_url = "[[=XML(load_company_url)]]";
+    let get_history_url = "[[=XML(get_history_url)]]";
+    let load_company_url = "[[=XML(load_company_url)]]";
+    let get_user_info_url = "[[=XML(get_user_info_url)]]";
 </script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script src="js/Plotter.js"></script>

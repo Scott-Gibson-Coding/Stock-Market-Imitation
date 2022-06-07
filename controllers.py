@@ -128,7 +128,12 @@ def get_user_info():
     fn = auth.get_user().get('first_name')
     ln = auth.get_user().get('last_name')
     user = db(db.user.user_id == user_id).select().first()
-    return {'first_name' : fn, 'last_name' : ln, 'balance' : user.user_balance, 'pfp' : user.pfp}
+    return {
+        'first_name' : fn,
+        'last_name' : ln, 
+        'balance' : user.user_balance, 
+        'pfp' : user.pfp
+    }
 
 @action('update_user_profile', method='POST')
 @action.uses(db, auth, url_signer.verify())
@@ -158,6 +163,7 @@ def company(id=None):
     return dict(
         get_history_url=URL('get_stock_history'),
         load_company_url=URL('load_company'),
+        get_user_info_url=URL('get_user_info'),
     )
 
 

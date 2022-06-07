@@ -192,7 +192,6 @@ def get_stock_history():
 
     for i in range(steps + 1):
         times.append(start_time + datetime.timedelta(seconds = i * duration // steps))
-    print(times)
     for t in times:
         co = simulator.load_company(co_symbol, t)
         hist.append(co['current_stock_value'])

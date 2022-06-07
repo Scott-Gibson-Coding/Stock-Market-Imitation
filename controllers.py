@@ -136,18 +136,18 @@ def update_user_profile():
 # ^GSPC, AAPL, MSFT, AMZN, GOOGL, GOOG, TSLA, BRK.B, JNJ, UNH, FB, NVDA, XOM, JPM, PG, V, CVX, HD, MA, PFE, ABBV
 @action('company')
 @action('company/<ticker>')
-@action.uses('company.html', db, auth)
+@action.uses('company.html', db, auth, url_signer)
 def company(ticker='^GSPC'):
     ensure_login()
     # If invalid ticker, simply redirect to default company page
     company_data = load_company_data(ticker)
-    company_data['buy_shares_url'] = URL('buy_shares')  # TODO signer=url_signer
-    company_data['sell_shares_url'] = URL('sell_shares')  # TODO signer=url_signer
+    company_data['buy_shares_url'] = URL('buy_shares', signer=url_signer)
+    company_data['sell_shares_url'] = URL('sell_shares', signer=url_signer)
     return company_data
 
 
 @action('buy_shares', method="POST")
-@action.uses(db, auth)
+@action.uses(db, auth, url_signer.verify())
 def buy_shares():
     num_shares = request.json.get('num_shares')
     ticker = request.json.get('ticker')
@@ -161,11 +161,12 @@ def buy_shares():
         count=num_shares,
         value_per_share=value,
     )
+    # TODO update balance
     return None
 
 
 @action('sell_shares', method="POST")
-@action.uses(db, auth)
+@action.uses(db, auth, url_signer.verify())
 def sell_shares():
     num_shares = request.json.get('num_shares')
     ticker = request.json.get('ticker')
@@ -179,6 +180,7 @@ def sell_shares():
         count=num_shares,
         value_per_share=value,
     )
+    # TODO update balance
     return None
 
 

@@ -30,7 +30,7 @@ from py4web.utils.form import Form, FormStyleBulma
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from py4web.utils.url_signer import URLSigner
-from .models import get_user_email, get_time
+from .models import get_user_id, get_user_email, get_time
 from .StockSimulator import *
 from .CompanyData import *
 
@@ -76,7 +76,7 @@ def verify_email():
 
 # creates new user in 'user' db if no user currently exists
 # init user balance to starting balance.
-init_user_starting_bal = 10000
+init_user_starting_bal = 100000
 @action('init_user')
 @action.uses(db, auth)
 def init_user():
@@ -139,11 +139,48 @@ def update_user_profile():
 @action.uses('company.html', db, auth)
 def company(ticker='^GSPC'):
     ensure_login()
-    # TODO temporarily initailizing here since db locks when initializing outside of a page function
-    #   sqlite3.OperationalError: database is locked
     # If invalid ticker, simply redirect to default company page
- 
-    return load_company_data(ticker)
+    company_data = load_company_data(ticker)
+    company_data['buy_shares_url'] = URL('buy_shares')  # TODO signer=url_signer
+    company_data['sell_shares_url'] = URL('sell_shares')  # TODO signer=url_signer
+    return company_data
+
+
+@action('buy_shares', method="POST")
+@action.uses(db, auth)
+def buy_shares():
+    num_shares = request.json.get('num_shares')
+    ticker = request.json.get('ticker')
+    co_id = load_company_data(ticker)['co_id']
+    value = request.json.get('price')
+    user_id = get_user_id()
+    transaction = db.transaction.insert(
+        company_id=co_id,
+        user_id=user_id,
+        transaction_type='buy',
+        count=num_shares,
+        value_per_share=value,
+    )
+    return None
+
+
+@action('sell_shares', method="POST")
+@action.uses(db, auth)
+def sell_shares():
+    num_shares = request.json.get('num_shares')
+    ticker = request.json.get('ticker')
+    co_id = load_company_data(ticker)['co_id']
+    value = request.json.get('price')
+    user_id = get_user_id()
+    transaction = db.transaction.insert(
+        company_id=co_id,
+        user_id=user_id,
+        transaction_type='sell',
+        count=num_shares,
+        value_per_share=value,
+    )
+    return None
+
 
 @action('company_refresh', method="POST")
 @action.uses(db, auth)

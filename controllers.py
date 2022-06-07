@@ -39,7 +39,7 @@ from .utilities import get_portfolio, get_avg_bought_price
 url_signer = URLSigner(session)
 
 # Get preset company data
-s = StockSimulator()
+simulator = StockSimulator()
 
 # redirects user to index page if not logged in
 def ensure_login():
@@ -48,7 +48,7 @@ def ensure_login():
 @action('load_db')
 @action.uses(db)
 def load_db():
-    s.initialize_database(preset_companies())
+    simulator.initialize_database(preset_companies())
 load_db()
 
 
@@ -104,7 +104,7 @@ def get_holdings():
     user_id = auth.get_user().get('id')
     holdings = get_portfolio(user_id)['holdings']
     holdings = [{'company_name' : (c := db.company[k]).company_name, 
-                 'ticker' : c.company_symbol,
+                 'symbol' : c.company_symbol,
                  'shares' : v,
                  'price' : c.current_stock_value,
                  'bought_price' : get_avg_bought_price(user_id, k)} for k,v in holdings.items()]
@@ -127,85 +127,78 @@ def update_user_profile():
     pfp = request.json.get('pfp')
     id = auth.get_user().get('id')
     db(db.auth_user.id == id).update(first_name=fn, last_name=ln)
-    db(db.user.user_id == id).update(pfp=pfp)
+    if pfp != None:
+        db(db.user.user_id == id).update(pfp=pfp)
     return 'OK'
     
 
-
-# If no ticker provided, default to S&P 500
-# For now, these companies are available (go to /company/ticker):
-# ^GSPC, AAPL, MSFT, AMZN, GOOGL, GOOG, TSLA, BRK.B, JNJ, UNH, FB, NVDA, XOM, JPM, PG, V, CVX, HD, MA, PFE, ABBV
-@action('company')
-@action('company/<ticker>')
-@action.uses('company.html', db, auth)
-def company(ticker='^GSPC'):
-    ensure_login()
-    # TODO temporarily initailizing here since db locks when initializing outside of a page function
-    #   sqlite3.OperationalError: database is locked
-    # If invalid ticker, simply redirect to default company page
- 
-    return load_company_data(ticker)
-
-@action('company_refresh', method="POST")
-@action.uses(db, auth)
-def company_refresh():
-    ticker = request.json.get('co_ticker')
-    
-    return load_company_data(ticker)
-
-
-@action('load_company', method="POST")
-@action.uses(db)
-def load_company():
-    ticker = request.json.get('co_ticker')
-    # Get company info from db
-    return load_company_data(ticker)
-
-
-def load_company_data(ticker):
-
-    my_company = s.load_company(ticker)
-    # If invalid ticker, simply redirect to default company page
+# Loads data relevant to the company matching the symbol
+def load_company_data(symbol):
+    my_company = simulator.load_company(symbol)
+    # If invalid symbol, simply redirect to default company page
     co_id = my_company['id']
     co_name = my_company['company_name']
-    co_ticker = ticker
-    co_price = my_company['current_stock_value']
-    co_change = my_company['changes'] 
+    co_symbol = symbol
+    co_price = round(my_company['current_stock_value'], 3)
+    co_change = round(my_company['changes'], 3)
     co_pct_change = round((co_change / co_price) * 100, 2)
     current_date = my_company['latest_update'].strftime("%m/%d/%Y, %H:%M:%S") 
     return dict(
         co_id=co_id,
         co_name=co_name,
-        co_ticker=co_ticker,
+        co_symbol=co_symbol,
         co_price=co_price,
         co_change=co_change,
         co_pct_change=co_pct_change,
         date=current_date,
-        company_refresh_url=URL('company_refresh'),
+    )
+
+
+# If no symbol provided, default to S&P 500
+# For now, these companies are available (go to /company/symbol):
+# ^GSPC, AAPL, MSFT, AMZN, GOOGL, GOOG, TSLA, BRK.B, JNJ, UNH, FB, NVDA, XOM, JPM, PG, V, CVX, HD, MA, PFE, ABBV
+@action('company')
+@action('company/<symbol>')
+@action.uses('company.html', db, auth)
+def company(symbol='^GSPC'):
+    ensure_login()
+    # TODO temporarily initializing here since db locks when initializing outside of a page function
+    #   sqlite3.OperationalError: database is locked
+    # If invalid symbol, simply redirect to default company page
+    return dict(
         get_history_url=URL('get_stock_history'),
         load_company_url=URL('load_company'),
     )
 
-@action('get_stock_history', method="POST")
+
+@action('load_company')
+@action.uses(db)
+def load_company():
+    # Get company info from db
+    return load_company_data(request.params.get('co_symbol'))
+
+
+@action('get_stock_history')
 @action.uses(db)
 def get_stock_history():
     import datetime
     # Load given company
-    co_ticker = request.json.get('co_ticker')
-    co_name = request.json.get('co_name')
+    co_symbol = request.params.get('co_symbol')
     # Get stock history
     hist = []
     times = []
-    #We will do 20 steps from start up time to current time by defaulti
-    steps = 200
-    duration = (s.current_time - s.start_time).total_seconds()
+    # We will do 20 steps from start up time to current time by defaulti
+    steps = 20
+    minutes = 5
+    duration = 60 * minutes
+    start_time = simulator.current_time - datetime.timedelta(seconds=duration)
+
     for i in range(steps + 1):
-        times.append(s.start_time + datetime.timedelta(seconds = i * duration // steps))
+        times.append(start_time + datetime.timedelta(seconds = i * duration // steps))
     for t in times:
-        co = s.load_company(co_ticker, t)
+        co = simulator.load_company(co_symbol, t)
         hist.append(co['current_stock_value'])
     return dict(
-        name=co_name,
         stock_history=hist,
         dates=times,
     )
@@ -215,13 +208,17 @@ def get_stock_history():
 @action.uses('search.html', db, auth)
 def search():
     ensure_login()
-    return dict(search_data_url = URL('search_data'), company_url = URL('company'))
+    return dict(
+        search_data_url = URL('search_data'), 
+        company_url = URL('company'),
+        get_history_url = URL('get_stock_history'),
+    )
 
 @action('search_data')
 @action.uses(db, auth)
 def search_data():
     company_rows = []
-    simulator_data = s.load_companies()
+    simulator_data = simulator.load_companies()
     for key in simulator_data:
         company_rows.append(simulator_data[key])
     
@@ -505,7 +502,7 @@ def delete_comment():
     # Check that the owner is the one trying to delete this post.
     if owner.email != get_user_email():
         return "Delete Failed, Owner does not match."
-    #else the current user owns the post, so delete it
+    # else the current user owns the post, so delete it
     # If the post is a top level post (not a reply), we
     # need to delete the replies linked to it as well
     if comment.parent_idx == -1:

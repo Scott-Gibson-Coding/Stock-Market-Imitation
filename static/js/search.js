@@ -42,9 +42,11 @@ let init = (app) => {
     
     // draw a small preview of the top stock in the table
     app.display_preview = function() {
-        axios.post(get_history_url, {
-            co_ticker: app.data.search_rows[0]['company_symbol'],
-            co_name: app.data.search_rows[0]['company_name']
+        axios.get(get_history_url, {
+            params: {
+                co_symbol: app.data.search_rows[0]['company_symbol'],
+                co_name: app.data.search_rows[0]['company_name']
+            }
         }).then(function(response) {
             let company_name = response.data.name;
             let stock_history = response.data.stock_history;

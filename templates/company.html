@@ -17,7 +17,7 @@
                </span>
                <span>Back to Search</span>
             </a>
-            <a class="button is-warning is-pulled-right" @click="refresh_quote('[[=co_ticker]]')">
+            <a class="button is-warning is-pulled-right" @click="refresh_quote(co_symbol)">
                <span class="icon">
                   <i class="fa fa-refresh"></i>
                </span>
@@ -29,7 +29,7 @@
          <div class="block">
             <div class="box">
                <!-- Company Name, Symbol, Price, % Change, Date, Chart -->
-               <h1 class="title">[[=co_name]] ([[=co_ticker]])</h1>
+               <h1 class="title">{{co_name}} ({{co_symbol}})</h1>
                <h2 class="subtitle is-size-6">Prices are shown in USD.</h2>
                <div class="is-size-3">
                   {{co_price}}
@@ -45,18 +45,6 @@
 
             <!-- price chart -->
             <div class="block" id="chart_div"></div>
-            <button class="button" @click="plot_history('[[=co_ticker]]', '[[=co_name]]')">Plot</button>
-
-            <div class="block has-text-centered">
-               Time Scale <a href="">1d, 1w, 1m, 3m, 6m, ytd, 1y, 2y, 5y, all</a>
-            </div>
-         </div>
-         <!-- Buttons -->
-         <div class="block has-text-centered">
-            <a class="button"><<</a>
-            <a class="button"><</a>
-            <a class="button">></a>
-            <a class="button">>></a>
          </div>
       </div>
 
@@ -114,7 +102,7 @@
                      <button class="delete" aria-label="close" @click="show_buy_menu(false)"></button>
                   </header>
                   <section class="modal-card-body">
-                     <h1 class="title">Buy [[=co_name]] ([[=co_ticker]])?</h1>
+                     <h1 class="title">Buy {{co_name}} ({{co_symbol}})?</h1>
                      <h2 class="subtitle">Enter the number of shares you would like to purchase in the box.</h2>
                      <!-- TODO text box entry and form submission -->
                   </section>
@@ -134,7 +122,7 @@
                      <button class="delete" aria-label="close" @click="show_sell_menu(false)"></button>
                   </header>
                   <section class="modal-card-body">
-                     <h1 class="title">Sell [[=co_name]] ([[=co_ticker]])?</h1>
+                     <h1 class="title">Sell {{co_name}} ({{co_symbol}})?</h1>
                      <h2 class="subtitle">Enter the number of shares you would like to sell in the box.</h2>
                      <!-- TODO text box entry and form submission -->
                   </section>
@@ -153,7 +141,6 @@
 [[block page_scripts]]
 <!-- Loads the company-specific js for Vue -->
 <script>
-   let company_refresh_url = "[[=XML(company_refresh_url)]]";
    let get_history_url = "[[=XML(get_history_url)]]";
    let load_company_url = "[[=XML(load_company_url)]]";
 </script>

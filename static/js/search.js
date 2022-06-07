@@ -42,16 +42,16 @@ let init = (app) => {
     
     // draw a small preview of the top stock in the table
     app.display_preview = function() {
+        co_name = app.vue.search_rows[0]['company_name'];
+        co_symbol = app.vue.search_rows[0]['company_symbol'];
         axios.get(get_history_url, {
             params: {
-                co_symbol: app.data.search_rows[0]['company_symbol'],
-                co_name: app.data.search_rows[0]['company_name']
+                co_symbol: co_symbol
             }
         }).then(function(response) {
-            let company_name = response.data.name;
             let stock_history = response.data.stock_history;
             let dates = response.data.dates;
-            plotter.plot_stock_history(dates, stock_history, "chart_div", company_name);
+            plotter.plot_stock_history(dates, stock_history, "chart_div", co_name);
         });
     }
 
@@ -74,7 +74,8 @@ let init = (app) => {
                 app.vue.company_rows.push(response.data.company_rows[r]);
                 app.vue.search_rows.push(response.data.company_rows[r])
             }
-            app.display_preview();
+
+            google.charts.setOnLoadCallback(app.display_preview);
         });
     };
 

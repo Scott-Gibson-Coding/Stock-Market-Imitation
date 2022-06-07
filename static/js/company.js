@@ -48,7 +48,7 @@ let init = (app) => {
     };
     
     // Get updated stock prices
-    app.refresh_quote = function(co_symbol) {
+    app.refresh_quote = function() {
     	axios.get(load_company_url, {
             params: {
                 co_symbol: app.data.co_symbol
@@ -125,8 +125,8 @@ let init = (app) => {
             // Now get the color
             app.determine_color(app.vue.co_change);
 
-            // plot graph of 
-            app.plot_history(app.vue.co_name, app.vue.co_symbol);
+            // plot graph of company history
+            google.charts.setOnLoadCallback(app.plot_history);
         });
     };
 

@@ -19,9 +19,6 @@ class StockSimulator:
         # Define instance variables
         self.start_time = self.get_time()
         self.current_time = self.get_time()
-    
-
-
 
     ############ 
     # Methods
@@ -103,7 +100,15 @@ class StockSimulator:
 
     def get_time(self):
         """
-        Returns a dateime object for the current time in New York.
+        Returns a datetime object for the current time for the user.
+        """
+        now = timezone('UTC').localize(datetime.datetime.utcnow())
+        nyc = timezone('America/New_York')
+        return now.astimezone(nyc)
+
+    def get_time_nyc(self):
+        """
+        Returns a datetime object for the current time in New York.
         """
         now = timezone('UTC').localize(datetime.datetime.utcnow())
         nyc = timezone('America/New_York')

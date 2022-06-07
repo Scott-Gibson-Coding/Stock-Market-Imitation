@@ -130,7 +130,7 @@ def update_user_profile():
     if pfp != None:
         db(db.user.user_id == id).update(pfp=pfp)
     return 'OK'
-    
+
 
 # Loads data relevant to the company matching the symbol
 def load_company_data(symbol):
@@ -162,9 +162,6 @@ def load_company_data(symbol):
 @action.uses('company.html', db, auth)
 def company(symbol='^GSPC'):
     ensure_login()
-    # TODO temporarily initializing here since db locks when initializing outside of a page function
-    #   sqlite3.OperationalError: database is locked
-    # If invalid symbol, simply redirect to default company page
     return dict(
         get_history_url=URL('get_stock_history'),
         load_company_url=URL('load_company'),
@@ -195,6 +192,7 @@ def get_stock_history():
 
     for i in range(steps + 1):
         times.append(start_time + datetime.timedelta(seconds = i * duration // steps))
+    print(times)
     for t in times:
         co = simulator.load_company(co_symbol, t)
         hist.append(co['current_stock_value'])

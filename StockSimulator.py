@@ -71,8 +71,8 @@ class StockSimulator:
 
         self.update_current_time()
         company = db(db.company.company_symbol == symbol).select().as_list()[0]
-        company['current_stock_value'] = company['current_stock_value'] * self.change_function(current_time) 
-        company['changes'] = company['current_stock_value'] * (self.change_function(current_time) - 1)
+        company['current_stock_value'] = company['current_stock_value'] * self.change_function(current_time, company['id']) 
+        company['changes'] = company['current_stock_value'] * (self.change_function(current_time, company['id']) - 1)
         company['latest_update'] = self.current_time
         return company
 
@@ -83,19 +83,21 @@ class StockSimulator:
         """
         self.current_time = self.get_time()
 
-    def change_function(self, current_time = None):
+    def change_function(self, current_time = None, id = 0):
         """
         Deterministic noise for the stocks returns a value ~1.  
         """
         if current_time == None:
             current_time = self.current_time
         time_diff = (current_time - self.start_time).total_seconds()
-        #base growth 7% per hour
-        
-        #change = math.pow(1.07, time_diff / 3600)
-        change = 1
+
+        change = 0
+        sim_level = 30
+        for i in range(sim_level):
+            x  = time_diff
+            change += i * math.pow(math.sin( (x + 1000*id)/math.pow(1.2,i) + i),39)
+        change = 1 + 0.01 * change / sim_level
         #noise
-        change = change + 0.001 * ( math.sin(time_diff) + math.sin(time_diff /5) + math.sin(time_diff / 24))
         return change
 
     def get_time(self):

@@ -35,7 +35,7 @@
                                 <p>{{r.company_symbol}}</p>
                             </td>
                             <td>
-                                <p>{{r.current_stock_value.toFixed(3)}}</p>
+                                <p>{{r.current_stock_value.toFixed(2)}}</p>
                             </td>
                             <!-- Visit company page button -->
                             <td>
@@ -64,7 +64,7 @@
 <script>
     let search_data_url = "[[=XML(search_data_url)]]";
     let company_url = "[[=XML(company_url)]]";
-    get_history_url = "[[=XML(get_history_url)]]";
+    let get_history_url = "[[=XML(get_history_url)]]";
 </script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script src="js/Plotter.js"></script>

@@ -167,50 +167,7 @@ def company(id=None):
         sell_shares_url=URL('sell_shares', signer=url_signer),
     )
 
-@action('buy_shares', method="POST")
-@action.uses(db, auth, url_signer.verify())
-def buy_shares():
-    num_shares = request.json.get('num_shares')
-    ticker = request.json.get('ticker')
-    co_id = load_company_data(ticker)['co_id']
-    value = request.json.get('price')
-    user_id = get_user_id()
-    user = db(db.user.user_id == user_id).select().first()
-    transaction = db.transaction.insert(
-        company_id=co_id,
-        user_id=user_id,
-        transaction_type='buy',
-        count=num_shares,
-        value_per_share=value,
-    )
-    # Update balance
-    new_balance = user.user_balance - float(value) * int(num_shares)
-    db(db.user.user_id == user_id).update(user_balance=new_balance)
-    return None
-
-
-@action('sell_shares', method="POST")
-@action.uses(db, auth, url_signer.verify())
-def sell_shares():
-    num_shares = request.json.get('num_shares')
-    ticker = request.json.get('ticker')
-    co_id = load_company_data(ticker)['co_id']
-    value = request.json.get('price')
-    user_id = get_user_id()
-    user = db(db.user.user_id == user_id).select().first()
-    transaction = db.transaction.insert(
-        company_id=co_id,
-        user_id=user_id,
-        transaction_type='sell',
-        count=num_shares,
-        value_per_share=value,
-    )
-    # Update balance
-    new_balance = user.user_balance + float(value) * int(num_shares)
-    db(db.user.user_id == user_id).update(user_balance=new_balance)
-    return None
-
-
+# reloads the company data and sends it to the company page
 @action('load_company')
 @action.uses(db)
 def load_company():
@@ -238,8 +195,8 @@ def load_company_data(symbol):
     co_id = my_company['id']
     co_name = my_company['company_name']
     co_symbol = symbol
-    co_price = round(my_company['current_stock_value'], 3)
-    co_change = round(my_company['changes'], 3)
+    co_price = round(my_company['current_stock_value'], 2)
+    co_change = round(my_company['changes'], 2)
     co_pct_change = round((co_change / co_price) * 100, 2)
     current_date = my_company['latest_update'].strftime("%m/%d/%Y, %H:%M:%S") 
     return dict(
@@ -251,6 +208,50 @@ def load_company_data(symbol):
         co_pct_change=co_pct_change,
         date=current_date,
     )
+
+@action('buy_shares', method="POST")
+@action.uses(db, auth, url_signer.verify())
+def buy_shares():
+    num_shares = request.json.get('num_shares')
+    symbol = request.json.get('co_symbol')
+    co_id = load_company_data(symbol)['co_id']
+    value = request.json.get('price')
+    user_id = get_user_id()
+    user = db(db.user.user_id == user_id).select().first()
+    transaction = db.transaction.insert(
+        company_id=co_id,
+        user_id=user_id,
+        transaction_type='buy',
+        count=num_shares,
+        value_per_share=value,
+    )
+    # Update balance
+    new_balance = user.user_balance - float(value) * int(num_shares)
+    db(db.user.user_id == user_id).update(user_balance=new_balance)
+    return None
+
+
+@action('sell_shares', method="POST")
+@action.uses(db, auth, url_signer.verify())
+def sell_shares():
+    num_shares = request.json.get('num_shares')
+    symbol = request.json.get('co_symbol')
+    co_id = load_company_data(symbol)['co_id']
+    value = request.json.get('price')
+    user_id = get_user_id()
+    user = db(db.user.user_id == user_id).select().first()
+    transaction = db.transaction.insert(
+        company_id=co_id,
+        user_id=user_id,
+        transaction_type='sell',
+        count=num_shares,
+        value_per_share=value,
+    )
+    # Update balance
+    new_balance = user.user_balance + float(value) * int(num_shares)
+    db(db.user.user_id == user_id).update(user_balance=new_balance)
+    return None
+
 
 # Return the history of a company to graph
 # currently set to return latest five minutes

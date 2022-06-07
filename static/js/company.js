@@ -86,7 +86,7 @@ let init = (app) => {
         axios.post(buy_shares_url,
             {
                 num_shares: app.vue.buy_amount,
-                ticker: app.vue.co_ticker,
+                co_symbol: app.vue.co_symbol,
                 price: app.vue.co_price,
             }).then(function (response) {
                 app.reset_form(true);
@@ -98,7 +98,7 @@ let init = (app) => {
         axios.post(sell_shares_url,
             {
                 num_shares: app.vue.sell_amount,
-                ticker: app.vue.co_ticker,
+                co_symbol: app.vue.co_symbol,
                 price: app.vue.co_price,
             }).then(function (response) {
                 app.reset_form(false);

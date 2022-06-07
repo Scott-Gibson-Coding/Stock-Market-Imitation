@@ -74,7 +74,6 @@ let init = (app) => {
                 app.vue.company_rows.push(response.data.company_rows[r]);
                 app.vue.search_rows.push(response.data.company_rows[r])
             }
-            console.log(app.vue.company_rows[0]);
 
             google.charts.setOnLoadCallback(app.display_preview);
         });

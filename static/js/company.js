@@ -28,7 +28,7 @@ let init = (app) => {
         return a;
     };
 
-    // Determine color of price
+    // Determine color of price by comparing the last history elem, with the first
     app.determine_color = function(change) {
         app.vue.is_green = change > 0;
         app.vue.is_red = change < 0;
@@ -46,7 +46,6 @@ let init = (app) => {
             app.vue.co_change = response.data.co_change;
             app.vue.co_pct_change = response.data.co_pct_change;
             app.vue.date = response.data.date;
-            app.determine_color(app.vue.co_change);
 
             app.plot_history();
         });
@@ -60,6 +59,10 @@ let init = (app) => {
         }).then(function(response) {
             let stock_history = response.data.stock_history;
             let dates = response.data.dates;
+
+            // determine color of text
+            change = stock_history[stock_history.length-1] - stock_history[0];
+            app.determine_color(change);
             plotter.plot_stock_history(dates, stock_history, "chart_div", app.vue.co_name);
         });
     };
@@ -111,7 +114,7 @@ let init = (app) => {
             app.vue.co_change = response.data.co_change;
             app.vue.co_pct_change = response.data.co_pct_change;
             
-            // Now get the color (BUG)
+            // Now get the color of the text
             app.determine_color(app.vue.co_change);
 
             // plot graph of company history

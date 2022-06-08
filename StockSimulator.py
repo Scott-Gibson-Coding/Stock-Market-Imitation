@@ -70,7 +70,10 @@ class StockSimulator:
         assert(symbol != None)
 
         self.update_current_time()
-        company = db(db.company.company_symbol == symbol).select().as_list()[0]
+        if type(symbol) is int:
+            company = db.company[symbol]
+        else:
+            company = db(db.company.company_symbol == symbol).select().as_list()[0]
         company['current_stock_value'] = company['current_stock_value'] * self.change_function(current_time, company['id']) 
         company['changes'] = company['current_stock_value'] * (self.change_function(current_time, company['id']) - 1)
         company['latest_update'] = self.current_time
@@ -104,6 +107,7 @@ class StockSimulator:
         """
         Returns a datetime object for the current time for the user.
         """
-        now = timezone('UTC').localize(datetime.datetime.utcnow())
-        nyc = timezone('America/New_York')
-        return now.astimezone(nyc)
+        # now = timezone('UTC').localize(datetime.datetime.utcnow())
+        # nyc = timezone('America/New_York')
+        # return now.astimezone(nyc)
+        return datetime.datetime.utcnow()

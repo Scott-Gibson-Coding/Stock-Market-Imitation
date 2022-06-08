@@ -166,6 +166,7 @@ def company(id=None):
         get_user_info_url=URL('get_user_info'),
         buy_shares_url=URL('buy_shares', signer=url_signer),
         sell_shares_url=URL('sell_shares', signer=url_signer),
+        get_holdings_url=URL('get_holdings'),
     )
 
 # reloads the company data and sends it to the company page
@@ -222,13 +223,12 @@ def buy_shares():
         count=num_shares,
         value_per_share=value,
     )
-
     # Update balance
     user_id = get_user_id()
     user = db(db.user.user_id == user_id).select().first()
     new_balance = user.user_balance - float(value) * int(num_shares)
     db(db.user.user_id == user_id).update(user_balance=round(new_balance, 2))
-    return None
+    return dict(balance=new_balance)
 
 
 @action('sell_shares', method="POST")
@@ -248,7 +248,7 @@ def sell_shares():
     user = db(db.user.user_id == user_id).select().first()
     new_balance = user.user_balance + float(value) * int(num_shares)
     db(db.user.user_id == user_id).update(user_balance=round(new_balance, 2))
-    return "ok"
+    return dict(balance=new_balance)
 
 
 # Return the history of a company to graph

@@ -42,36 +42,32 @@ let init = (app) => {
         app.vue.is_red = change < 0;
         app.vue.is_flat = change === 0;
     };
-    
-    // Get updated stock prices
+
+    // Update stock prices and chart
     app.refresh_quote = function() {
-    	axios.get(load_company_url, {
+        axios.get(load_company_url, {
             params: {
                 co_symbol: app.vue.co_symbol
             }
         }).then(function (response) {
             app.vue.co_price = response.data.co_price.toFixed(2);
-            app.vue.co_change = response.data.co_change.toFixed(2);
-            app.vue.co_pct_change = response.data.co_pct_change;
             app.vue.date = response.data.date;
+        }).then(function () {
+            axios.get(get_history_url, {
+                params: {
+                    co_symbol: app.vue.co_symbol
+                }
+            }).then(function (response) {
+                let stock_history = response.data.stock_history;
+                let dates = response.data.dates;
 
-            app.plot_history();
-        });
-    };
-
-    app.plot_history = function() {
-        axios.get(get_history_url, {
-            params: {
-                co_symbol: app.vue.co_symbol
-            }
-        }).then(function(response) {
-            let stock_history = response.data.stock_history;
-            let dates = response.data.dates;
-
-            // determine color of text
-            change = stock_history[stock_history.length-1] - stock_history[0];
-            app.determine_color(change);
-            plotter.plot_stock_history(dates, stock_history, "chart_div", app.vue.co_name);
+                // determine color of text
+                change = stock_history[stock_history.length-1] - stock_history[0];
+                app.vue.co_change = change.toFixed(2);
+                app.vue.co_pct_change = (change / stock_history[0] * 100).toFixed(2);
+                app.determine_color(change);
+                plotter.plot_stock_history(dates, stock_history, "chart_div", app.vue.co_name);
+            });
         });
     };
 
@@ -124,7 +120,6 @@ let init = (app) => {
         refresh_quote: app.refresh_quote,
         show_buy_menu: app.show_buy_menu,
         show_sell_menu: app.show_sell_menu,
-        plot_history: app.plot_history,
         buy_shares: app.buy_shares,
         sell_shares: app.sell_shares,
         reset_form: app.reset_form,
@@ -169,7 +164,7 @@ let init = (app) => {
             app.vue.co_pct_change = response.data.co_pct_change.toFixed(2);
 
             // plot graph of company history
-            google.charts.setOnLoadCallback(app.plot_history);
+            google.charts.setOnLoadCallback(app.refresh_quote);
         });
     };
 

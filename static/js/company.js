@@ -112,12 +112,11 @@ let init = (app) => {
 
     app.sell_shares = function() {
         // Get user's holdings to check if this sale can be made
-        axios.get(get_holdings_url
-            ).then(function (response) {
+        axios.get(get_holdings_url).then(function (response) {
                 let h = response.data.holdings;
                 for (let i = 0; i < h.length; i++) {
                     // Valid sale
-                    if (h[i].id === app.vue.co_id && h[i].shares >= app.vue.sell_amount) {
+                    if (h[i].company_id === app.vue.co_id && h[i].shares >= app.vue.sell_amount) {
                         axios.post(sell_shares_url,
                             {
                                 num_shares: app.vue.sell_amount,

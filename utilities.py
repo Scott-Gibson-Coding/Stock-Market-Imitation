@@ -65,7 +65,7 @@ def get_net_worth_history(user_id, time=None, steps=30):
     dates = []
     sim = StockSimulator()
     holdings = {}
-    balance = 10000
+    balance = 100000
     transactions = db(db.transaction.user_id == user_id).select(orderby=db.transaction.transaction_date)
     transactions = transactions.as_list()
     pos = 0

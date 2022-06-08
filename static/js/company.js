@@ -86,6 +86,7 @@ let init = (app) => {
                 co_id: app.vue.co_id,
                 price: app.vue.co_price,
             }).then(function (response) {
+                app.vue.user_balance = response.data.balance;
                 app.reset_form(true);
                 app.show_buy_menu(false);
             });
@@ -95,9 +96,10 @@ let init = (app) => {
         axios.post(sell_shares_url,
             {
                 num_shares: app.vue.sell_amount,
-                co_symbol: app.vue.co_symbol,
+                co_id: app.vue.co_id,
                 price: app.vue.co_price,
             }).then(function (response) {
+                app.vue.user_balance = response.data.balance;
                 app.reset_form(false);
                 app.show_sell_menu(false);
             });

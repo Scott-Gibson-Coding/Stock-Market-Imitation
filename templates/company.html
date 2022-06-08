@@ -66,15 +66,6 @@
                 </div>
             </div>
 
-            <!-- Stock stats -->
-            <div class="box">
-                <p>Stock stats:</p>
-                <p>PE</p>
-                <p>EPS</p>
-                <p>Market Cap</p>
-                <p>Div Yield</p>
-                <p>Future EPS</p>
-            </div>
             <!-- Transactions -->
             <div class="box has-text-centered">
                 <a class="button is-success" @click="show_buy_menu(true)">
@@ -94,7 +85,7 @@
                     <div class="modal-background" @click="show_buy_menu(false)"></div>
                     <div class="modal-card">
                         <header class="modal-card-head">
-                            <p class="modal-card-title">Modal title</p>
+                            <p class="modal-card-title">Purchase Shares</p>
                             <button class="delete" aria-label="close" @click="show_buy_menu(false)"></button>
                         </header>
                         <section class="modal-card-body">
@@ -105,14 +96,29 @@
                                 <div class="form">
                                     <div class="field">
                                         <div class="control">
-                                            <input type="number" v-model="buy_amount" class="input">
+                                            <!-- Disallow negative values -->
+                                            <input type="number"
+                                                   min="0"
+                                                   oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null"
+                                                   v-model="buy_amount"
+                                                   class="input"
+                                            >
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <!-- Order total -->
+                            <div class="container block">
+                                <p>You are buying {{buy_amount}} shares for ${{(buy_amount * co_price).toFixed(2)}}.</p>
+                                <p>Your balance will be ${{(Number(user_balance) - buy_amount * co_price).toFixed(2)}} after the purchase.</p>
+                                <p v-if="(Number(user_balance) - buy_amount * co_price).toFixed(2) < 0" class="has-text-danger">
+                                    Insufficient balance
+                                </p>
+                            </div>
                         </section>
                         <footer class="modal-card-foot">
-                            <input type="submit" class="button is-success" @click="buy_shares" value="Confirm Purchase">
+                            <input type="submit" class="button is-success" @click="buy_shares" value="Confirm Purchase" :disabled="(Number(user_balance) - buy_amount * co_price).toFixed(2) < 0">
+                            <input type="submit" class="button is-warning" @click="refresh_quote(co_ticker)" value="Refresh Quote">
                             <input type="submit" class="button" @click="show_buy_menu(false)" value="Cancel">
                         </footer>
                     </div>
@@ -122,7 +128,7 @@
                     <div class="modal-background" @click="show_sell_menu(false)"></div>
                     <div class="modal-card">
                         <header class="modal-card-head">
-                            <p class="modal-card-title">Modal title</p>
+                            <p class="modal-card-title">Sell Shares</p>
                             <button class="delete" aria-label="close" @click="show_sell_menu(false)"></button>
                         </header>
                         <section class="modal-card-body">
@@ -133,14 +139,29 @@
                                 <div class="form">
                                     <div class="field">
                                         <div class="control">
-                                            <input type="number" v-model="sell_amount" class="input">
+                                            <!-- Disallow negative values -->
+                                            <input type="number"
+                                                   min="0"
+                                                   oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null"
+                                                   v-model="sell_amount"
+                                                   class="input"
+                                            >
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <!-- Order total -->
+                            <div class="container block">
+                                <p>You are selling {{sell_amount}} shares for ${{(sell_amount * co_price).toFixed(2)}}.</p>
+                                <p>Your balance will be ${{(Number(user_balance) + (sell_amount * co_price)).toFixed(2)}} after the sale.</p>
+                                <p v-if="show_sell_error" class="has-text-danger">
+                                    {{sell_error_msg}}
+                                 </p>
+                            </div>
                         </section>
                         <footer class="modal-card-foot">
                             <input type="submit" class="button is-success" @click="sell_shares" value="Confirm Sale">
+                            <input type="submit" class="button is-warning" @click="refresh_quote(co_ticker)" value="Refresh Quote">
                             <input type="submit" class="button" @click="show_sell_menu(false)" value="Cancel">
                         </footer>
                     </div>
@@ -157,6 +178,7 @@
     let get_user_info_url = "[[=XML(get_user_info_url)]]";
     let buy_shares_url = "[[=XML(buy_shares_url)]]";
     let sell_shares_url = "[[=XML(sell_shares_url)]]";
+    let get_holdings_url = "[[=XML(get_holdings_url)]]";
 </script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script src="js/Plotter.js"></script>

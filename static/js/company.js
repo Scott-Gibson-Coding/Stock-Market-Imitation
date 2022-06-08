@@ -12,7 +12,7 @@ let init = (app) => {
         user_name: "",
         user_balance: 0,
         user_pfp: "",
-
+        // company data
         co_id: 0,
         co_name: "",
         co_symbol: "",
@@ -27,6 +27,8 @@ let init = (app) => {
         sell_menu: false,
         buy_amount: 0,
         sell_amount: 0,
+        sell_error_msg: "",
+        show_sell_error: false,
     };
 
     app.enumerate = (a) => {
@@ -42,70 +44,104 @@ let init = (app) => {
         app.vue.is_red = change < 0;
         app.vue.is_flat = change === 0;
     };
-    
-    // Get updated stock prices
+
+    // Update stock prices and chart
     app.refresh_quote = function() {
-    	axios.get(load_company_url, {
+        axios.get(load_company_url, {
             params: {
                 co_symbol: app.vue.co_symbol
             }
         }).then(function (response) {
             app.vue.co_price = response.data.co_price.toFixed(2);
-            app.vue.co_change = response.data.co_change.toFixed(2);
-            app.vue.co_pct_change = response.data.co_pct_change;
             app.vue.date = response.data.date;
+        }).then(function () {
+            axios.get(get_history_url, {
+                params: {
+                    co_symbol: app.vue.co_symbol
+                }
+            }).then(function (response) {
+                let stock_history = response.data.stock_history;
+                let dates = response.data.dates;
 
-            app.plot_history();
-        });
-    };
-
-    app.plot_history = function() {
-        axios.get(get_history_url, {
-            params: {
-                co_symbol: app.vue.co_symbol
-            }
-        }).then(function(response) {
-            let stock_history = response.data.stock_history;
-            let dates = response.data.dates;
-
-            // determine color of text
-            change = stock_history[stock_history.length-1] - stock_history[0];
-            app.determine_color(change);
-            plotter.plot_stock_history(dates, stock_history, "chart_div", app.vue.co_name);
+                // calculate price change and determine color of text
+                change = stock_history[stock_history.length-1] - stock_history[0];
+                app.vue.co_change = change.toFixed(2);
+                app.vue.co_pct_change = (change / stock_history[0] * 100).toFixed(2);
+                app.determine_color(change);
+                plotter.plot_stock_history(dates, stock_history, "chart_div", app.vue.co_name);
+            });
         });
     };
 
     app.show_buy_menu = function(flag) {
         app.vue.buy_menu = flag;
+        if (flag === false) {
+            app.vue.buy_amount = 0;
+        }
     };
 
     app.show_sell_menu = function(flag) {
         app.vue.sell_menu = flag;
+        if (flag === false) {
+            app.vue.sell_amount = 0;
+            app.vue.sell_error_msg = "";
+            app.vue.show_sell_error = false;
+        }
     };
 
     app.buy_shares = function() {
-        axios.post(buy_shares_url,
-            {
-                num_shares: app.vue.buy_amount,
-                co_id: app.vue.co_id,
-                price: app.vue.co_price,
-            }).then(function (response) {
-                app.reset_form(true);
-                app.show_buy_menu(false);
-            });
+        // Valid buy
+        if (app.vue.buy_amount * app.vue.co_price <= app.vue.user_balance) {
+            axios.post(buy_shares_url,
+                {
+                    num_shares: app.vue.buy_amount,
+                    co_id: app.vue.co_id,
+                    price: app.vue.co_price,
+                }).then(function (response) {
+                    app.vue.user_balance = response.data.balance.toFixed(2);
+                    app.reset_form(true);
+                    app.show_buy_menu(false);
+                });
+        }
+        // Invalid buy
+        else {
+            app.reset_form(true);
+            app.show_buy_menu(false);
+        }
     };
 
     app.sell_shares = function() {
-        axios.post(sell_shares_url,
-            {
-                num_shares: app.vue.sell_amount,
-                co_id: app.vue.co_id,
-                price: app.vue.co_price,
-            }).then(function (response) {
-                app.reset_form(false);
-                app.show_sell_menu(false);
+        // Get user's holdings to check if this sale can be made
+        axios.get(get_holdings_url
+            ).then(function (response) {
+                let h = response.data.holdings;
+                for (let i = 0; i < h.length; i++) {
+                    // Valid sale
+                    if (h[i].id === app.vue.co_id && h[i].shares >= app.vue.sell_amount) {
+                        axios.post(sell_shares_url,
+                            {
+                                num_shares: app.vue.sell_amount,
+                                co_id: app.vue.co_id,
+                                price: app.vue.co_price,
+                            }).then(function (response) {
+                                app.vue.user_balance = response.data.balance.toFixed(2);
+                                app.reset_form(false);
+                                app.show_sell_menu(false);
+                            });
+                        i = h.length;
+                    }
+                    else {
+                        // Invalid sale
+                        if (i == h.length-1) {
+                            //app.reset_form(false);
+                            //app.show_sell_menu(false);
+                            app.vue.sell_error_msg = "Cannot sell more stocks than you own";
+                            app.vue.show_sell_error = true;
+                        }
+                    }
+                }
             });
-    }
+    };
 
     // True: buy
     // False: sell
@@ -124,7 +160,6 @@ let init = (app) => {
         refresh_quote: app.refresh_quote,
         show_buy_menu: app.show_buy_menu,
         show_sell_menu: app.show_sell_menu,
-        plot_history: app.plot_history,
         buy_shares: app.buy_shares,
         sell_shares: app.sell_shares,
         reset_form: app.reset_form,
@@ -141,7 +176,7 @@ let init = (app) => {
         // request user info
         axios.get(get_user_info_url).then(function (response) {
             app.vue.user_name = response.data.first_name + " " + response.data.last_name;
-            app.vue.user_balance = response.data.balance;
+            app.vue.user_balance = response.data.balance.toFixed(2);
             app.vue.user_pfp = response.data.pfp;
         });
 
@@ -169,7 +204,7 @@ let init = (app) => {
             app.vue.co_pct_change = response.data.co_pct_change.toFixed(2);
 
             // plot graph of company history
-            google.charts.setOnLoadCallback(app.plot_history);
+            google.charts.setOnLoadCallback(app.refresh_quote);
         });
     };
 

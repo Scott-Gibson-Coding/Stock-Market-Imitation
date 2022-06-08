@@ -10,11 +10,34 @@
     <div class="columns">
         <div class="column is-half">
             <div class="columns is-centered">
-                <div class="column is-four-fifths">
+                <div class="column is-half">
                     <div class="title">Net Worth History</div>
                 </div>
             </div>
             <div class="block" id="performance_chart"></div>
+            <div class="block">
+                <div class="columns is-centered">
+                    <div class="column is-half">
+                        <div class="title">Transaction History</div>
+                    </div>
+                </div>
+                <table class="table is-fullwidth is-striped">
+                    <tbody>
+                        <tr v-for="t in transactions">
+                            <td>
+                                <div class="level">
+                                    <div class="level-left">
+                                        <div class="level-item">{{t.desc}}</div>
+                                    </div>
+                                    <div class="level-right">
+                                        <div class="level-item">{{t.date}}</div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="column">
             <div class="box">
@@ -125,6 +148,7 @@
     let get_user_info_url = "[[=XML(get_user_info_url)]]";
     let update_user_profile_url = "[[=XML(update_user_profile_url)]]";
     let get_net_worth_url = "[[=XML(get_net_worth_url)]]";
+    let get_transactions_url = "[[=XML(get_transactions_url)]]";
 </script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script src="js/Plotter.js"></script>

@@ -8,7 +8,7 @@ import datetime
 from .StockSimulator import StockSimulator
 from .common import db
 
-def get_portfolio(user_id:int) -> dict:
+def get_portfolio(user_id:int, sim) -> dict:
     transactions = db(db.transaction.user_id == user_id).select(orderby=db.transaction.transaction_date)
     holdings = {}
     spent, gained = 0.0, 0.0
@@ -27,7 +27,8 @@ def get_portfolio(user_id:int) -> dict:
             gained += row.count * row.value_per_share
     value = gained - spent
     for k, v in holdings.items():
-        share_val = db(db.company.id == k).select().first().current_stock_value
+        company = db(db.company.id == k).select().first()
+        share_val = sim.load_company(company.company_symbol)['current_stock_value']
         value += v * share_val
     return {'holdings' : holdings, 'spent' : spent, 'gained' : gained, 'value' : value}
 
@@ -51,7 +52,7 @@ def get_avg_bought_price(user_id, company_id):
         sum += r.count * r.value_per_share
     return sum / count
 
-def get_net_worth_history(user_id, time=None, steps=30):
+def get_net_worth_history(user_id, sim, time=None, steps=30):
     if time is None:
         time = datetime.datetime.utcnow() - datetime.timedelta(minutes=5)
     
@@ -63,7 +64,6 @@ def get_net_worth_history(user_id, time=None, steps=30):
     
     history = []
     dates = []
-    sim = StockSimulator()
     holdings = {}
     balance = 100000
     transactions = db(db.transaction.user_id == user_id).select(orderby=db.transaction.transaction_date)

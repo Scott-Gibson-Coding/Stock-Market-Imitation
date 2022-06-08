@@ -113,12 +113,12 @@ def portfolio():
 def get_holdings():
     ensure_login()
     user_id = auth.get_user().get('id')
-    holdings = get_portfolio(user_id)['holdings']
+    holdings = get_portfolio(user_id, simulator)['holdings']
     holdings = [{'company_name' : (c := db.company[k]).company_name, 
                  'company_id' : k,
                  'symbol' : c.company_symbol,
                  'shares' : v,
-                 'price' : c.current_stock_value,
+                 'price' : round(simulator.load_company(c.company_symbol)['current_stock_value'], 2),
                  'bought_price' : round(get_avg_bought_price(user_id, k), 2)} for k,v in holdings.items()]
     return {'holdings' : holdings}
 
@@ -153,7 +153,7 @@ def update_user_profile():
 @action.uses(db, auth)
 def get_net_worth():
     id = auth.get_user()['id']
-    history, dates = get_net_worth_history(id)
+    history, dates = get_net_worth_history(id, simulator)
     return {'history' : history, 'dates' : dates}
 
 #################

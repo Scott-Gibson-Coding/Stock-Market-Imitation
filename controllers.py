@@ -118,7 +118,7 @@ def get_holdings():
                  'company_id' : k,
                  'symbol' : c.company_symbol,
                  'shares' : v,
-                 'price' : c.current_stock_value,
+                 'price' : round(simulator.load_company(c.id)['current_stock_value'], 2),
                  'bought_price' : round(get_avg_bought_price(user_id, k), 2)} for k,v in holdings.items()]
     return {'holdings' : holdings}
 

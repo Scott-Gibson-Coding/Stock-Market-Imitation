@@ -24,6 +24,8 @@ def get_portfolio(user_id:int) -> dict:
             if row.count > holdings[row.company_id]:
                 raise ValueError(f'Cannot sell {row.count} shares, user owns {holdings[row.company_id]}')
             holdings[row.company_id] -= row.count
+            if holdings[row.company_id] == 0:
+                del holdings[row.company_id]
             gained += row.count * row.value_per_share
     value = gained - spent
     for k, v in holdings.items():

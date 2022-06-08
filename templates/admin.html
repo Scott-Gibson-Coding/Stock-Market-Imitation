@@ -1,0 +1,16 @@
+[[extend 'layout.html']]
+
+<section class="section" id="vue-target">
+    <div class="block">
+        Status:
+        <span>{{status}}</span>
+    </div>
+    <button class="button is-danger" @click="do_action('dump_transactions')">Dump Transactions</button>
+</section>
+
+[[block page_scripts]]
+<script src="js/admin.js"></script>
+<script>
+    let admin_url = "[[=XML(admin_url)]]";
+</script>
+[[end]]

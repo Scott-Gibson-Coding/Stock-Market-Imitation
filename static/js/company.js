@@ -99,7 +99,7 @@ let init = (app) => {
         axios.post(sell_shares_url,
             {
                 num_shares: app.vue.sell_amount,
-                co_symbol: app.vue.co_symbol,
+                co_id: app.vue.co_id,
                 price: app.vue.co_price,
             }).then(function (response) {
                 app.reset_form(false);

@@ -114,6 +114,7 @@ def get_holdings():
     user_id = auth.get_user().get('id')
     holdings = get_portfolio(user_id)['holdings']
     holdings = [{'company_name' : (c := db.company[k]).company_name, 
+                 'company_id' : k,
                  'symbol' : c.company_symbol,
                  'shares' : v,
                  'price' : c.current_stock_value,
@@ -588,3 +589,13 @@ def delete_comment():
         db(db.forum_comment.parent_idx == comment.id).delete()
     db(db.forum_comment.id == comment_id).delete()
     return "ok"
+
+@action('admin', method=['GET', 'POST'])
+@action.uses('admin.html', db, auth)
+def admin():
+    if request.json:
+        action = request.json.get('action')
+        if action == 'dump_transactions':
+            db.transaction.truncate()
+            print('DONE')
+    return {'admin_url' : URL('admin')}

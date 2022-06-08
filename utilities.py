@@ -62,6 +62,7 @@ def get_net_worth_history(user_id, time=None, steps=30):
             yield time + (delta * i)
     
     history = []
+    dates = []
     sim = StockSimulator()
     holdings = {}
     balance = 10000
@@ -95,7 +96,8 @@ def get_net_worth_history(user_id, time=None, steps=30):
             price = sim.load_company(k, timestep)['current_stock_value']
             net_worth += price * v
         history.append(net_worth)
+        dates.append(timestep)
     
-    return history
+    return history, dates
     
     

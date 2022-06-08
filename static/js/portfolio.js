@@ -39,8 +39,8 @@ let init = (app) => {
         });
     }
 
-    app.to_company = function(ticker) {
-        window.location.href = "../company/" + ticker;
+    app.to_company = function(id) {
+        window.location.href = "../company/" + id;
     }
 
     app.update_user_profile = function() {
@@ -80,6 +80,12 @@ let init = (app) => {
         reader.readAsDataURL(file);
     }
 
+    app.load_net_worth = function() {
+        axios.post(get_net_worth_url).then(function(r) {
+            plotter.plot_stock_history(r.data.dates, r.data.history, "performance_chart", "")
+        });
+    };
+
     // This contains all the methods
     app.methods = {
         get_holdings : app.get_holdings,
@@ -88,6 +94,7 @@ let init = (app) => {
         update_user_profile : app.update_user_profile,
         cancel_profile_edit : app.cancel_profile_edit,
         upload_pfp : app.upload_pfp,
+        load_net_worth : app.load_net_worth,
     };
 
     // This creates the Vue instance
@@ -100,11 +107,14 @@ let init = (app) => {
     app.init = () => {
         app.get_holdings();
         app.get_user_info();
+        google.charts.setOnLoadCallback(app.load_net_worth);
     };
 
     // Call to the initializer
     app.init();
 };
 
+let plotter = new Plotter();
 // Initialize the app object
 init(app);
+

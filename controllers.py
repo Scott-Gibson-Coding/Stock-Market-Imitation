@@ -34,7 +34,7 @@ from .models import get_user_id, get_user_email, get_time
 from .StockSimulator import *
 from .CompanyData import *
 
-from .utilities import get_portfolio, get_avg_bought_price
+from .utilities import get_portfolio, get_avg_bought_price, get_net_worth_history
 
 url_signer = URLSigner(session)
 
@@ -105,7 +105,8 @@ def portfolio():
     ensure_login()
     return {'get_holdings_url' : URL('get_holdings'),
             'get_user_info_url' : URL('get_user_info'),
-            'update_user_profile_url' : URL('update_user_profile', signer=url_signer)}
+            'update_user_profile_url' : URL('update_user_profile', signer=url_signer),
+            'get_net_worth_url' : URL('get_net_worth')}
 
 @action('get_holdings')
 @action.uses(db, auth)
@@ -148,6 +149,12 @@ def update_user_profile():
         db(db.user.user_id == id).update(pfp=pfp)
     return 'OK'
 
+@action('get_net_worth', method='POST')
+@action.uses(db, auth)
+def get_net_worth():
+    id = auth.get_user()['id']
+    history, dates = get_net_worth_history(id)
+    return {'history' : history, 'dates' : dates}
 
 #################
 # Company

@@ -127,6 +127,7 @@
                         </section>
                         <footer class="modal-card-foot">
                             <input type="submit" class="button is-success" @click="buy_shares" value="Confirm Purchase" :disabled="(Number(user_balance) - buy_amount * co_price).toFixed(2) < 0">
+                            <input type="submit" class="button is-warning" @click="refresh_quote(co_ticker)" value="Refresh Quote">
                             <input type="submit" class="button" @click="show_buy_menu(false)" value="Cancel">
                         </footer>
                     </div>
@@ -169,6 +170,7 @@
                         </section>
                         <footer class="modal-card-foot">
                             <input type="submit" class="button is-success" @click="sell_shares" value="Confirm Sale">
+                            <input type="submit" class="button is-warning" @click="refresh_quote(co_ticker)" value="Refresh Quote">
                             <input type="submit" class="button" @click="show_sell_menu(false)" value="Cancel">
                         </footer>
                     </div>

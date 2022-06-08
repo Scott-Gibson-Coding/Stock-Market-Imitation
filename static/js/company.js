@@ -12,7 +12,7 @@ let init = (app) => {
         user_name: "",
         user_balance: 0,
         user_pfp: "",
-
+        // company data
         co_id: 0,
         co_name: "",
         co_symbol: "",
@@ -61,7 +61,7 @@ let init = (app) => {
                 let stock_history = response.data.stock_history;
                 let dates = response.data.dates;
 
-                // determine color of text
+                // calculate price change and determine color of text
                 change = stock_history[stock_history.length-1] - stock_history[0];
                 app.vue.co_change = change.toFixed(2);
                 app.vue.co_pct_change = (change / stock_history[0] * 100).toFixed(2);
@@ -93,17 +93,35 @@ let init = (app) => {
     };
 
     app.sell_shares = function() {
-        axios.post(sell_shares_url,
-            {
-                num_shares: app.vue.sell_amount,
-                co_id: app.vue.co_id,
-                price: app.vue.co_price,
-            }).then(function (response) {
-                app.vue.user_balance = response.data.balance.toFixed(2);
-                app.reset_form(false);
-                app.show_sell_menu(false);
+        // Get user's holdings to check if this sale can be made
+        axios.get(get_holdings_url
+            ).then(function (response) {
+                let h = response.data.holdings;
+                for (let i = 0; i < h.length; i++) {
+                    // Valid sale
+                    if (h[i].id === app.vue.co_id && h[i].shares >= app.vue.sell_amount) {
+                        axios.post(sell_shares_url,
+                            {
+                                num_shares: app.vue.sell_amount,
+                                co_id: app.vue.co_id,
+                                price: app.vue.co_price,
+                            }).then(function (response) {
+                                app.vue.user_balance = response.data.balance.toFixed(2);
+                                app.reset_form(false);
+                                app.show_sell_menu(false);
+                            });
+                        i = h.length;
+                    }
+                    else {
+                        // Invalid sale
+                        if (i == h.length-1) {
+                            app.reset_form(false);
+                            app.show_sell_menu(false);
+                        }
+                    }
+                }
             });
-    }
+    };
 
     // True: buy
     // False: sell

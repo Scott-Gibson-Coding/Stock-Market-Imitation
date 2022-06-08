@@ -166,6 +166,7 @@ def company(id=None):
         get_user_info_url=URL('get_user_info'),
         buy_shares_url=URL('buy_shares', signer=url_signer),
         sell_shares_url=URL('sell_shares', signer=url_signer),
+        get_holdings_url=URL('get_holdings'),
     )
 
 # reloads the company data and sends it to the company page

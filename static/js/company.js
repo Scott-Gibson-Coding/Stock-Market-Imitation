@@ -86,7 +86,7 @@ let init = (app) => {
                 co_id: app.vue.co_id,
                 price: app.vue.co_price,
             }).then(function (response) {
-                app.vue.user_balance = response.data.balance;
+                app.vue.user_balance = response.data.balance.toFixed(2);
                 app.reset_form(true);
                 app.show_buy_menu(false);
             });
@@ -99,7 +99,7 @@ let init = (app) => {
                 co_id: app.vue.co_id,
                 price: app.vue.co_price,
             }).then(function (response) {
-                app.vue.user_balance = response.data.balance;
+                app.vue.user_balance = response.data.balance.toFixed(2);
                 app.reset_form(false);
                 app.show_sell_menu(false);
             });
@@ -138,7 +138,7 @@ let init = (app) => {
         // request user info
         axios.get(get_user_info_url).then(function (response) {
             app.vue.user_name = response.data.first_name + " " + response.data.last_name;
-            app.vue.user_balance = response.data.balance;
+            app.vue.user_balance = response.data.balance.toFixed(2);
             app.vue.user_pfp = response.data.pfp;
         });
 

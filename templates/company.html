@@ -105,10 +105,20 @@
                                 <div class="form">
                                     <div class="field">
                                         <div class="control">
-                                            <input type="number" v-model="buy_amount" class="input">
+                                            <!-- Disallow negative values -->
+                                            <input type="number"
+                                                   min="0"
+                                                   oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null"
+                                                   v-model="buy_amount"
+                                                   class="input"
+                                            >
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                            <!-- Order total -->
+                            <div class="container block">
+                                <p>You are buying {{buy_amount}} shares for ${{(buy_amount * co_price).toFixed(2)}}.</p>
                             </div>
                         </section>
                         <footer class="modal-card-foot">
@@ -133,10 +143,20 @@
                                 <div class="form">
                                     <div class="field">
                                         <div class="control">
-                                            <input type="number" v-model="sell_amount" class="input">
+                                            <!-- Disallow negative values -->
+                                            <input type="number"
+                                                   min="0"
+                                                   oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null"
+                                                   v-model="sell_amount"
+                                                   class="input"
+                                            >
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                            <!-- Order total -->
+                            <div class="container block">
+                                <p>You are selling {{sell_amount}} shares for ${{(sell_amount * co_price).toFixed(2)}}.</p>
                             </div>
                         </section>
                         <footer class="modal-card-foot">

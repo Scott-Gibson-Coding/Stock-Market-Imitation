@@ -27,6 +27,8 @@ let init = (app) => {
         sell_menu: false,
         buy_amount: 0,
         sell_amount: 0,
+        sell_error_msg: "",
+        show_sell_error: false,
     };
 
     app.enumerate = (a) => {
@@ -73,10 +75,18 @@ let init = (app) => {
 
     app.show_buy_menu = function(flag) {
         app.vue.buy_menu = flag;
+        if (flag === false) {
+            app.vue.buy_amount = 0;
+        }
     };
 
     app.show_sell_menu = function(flag) {
         app.vue.sell_menu = flag;
+        if (flag === false) {
+            app.vue.sell_amount = 0;
+            app.vue.sell_error_msg = "";
+            app.vue.show_sell_error = false;
+        }
     };
 
     app.buy_shares = function() {
@@ -115,8 +125,10 @@ let init = (app) => {
                     else {
                         // Invalid sale
                         if (i == h.length-1) {
-                            app.reset_form(false);
-                            app.show_sell_menu(false);
+                            //app.reset_form(false);
+                            //app.show_sell_menu(false);
+                            app.vue.sell_error_msg = "Cannot sell more stocks than you own";
+                            app.vue.show_sell_error = true;
                         }
                     }
                 }

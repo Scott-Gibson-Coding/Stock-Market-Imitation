@@ -226,8 +226,8 @@ def buy_shares():
     # Update balance
     user_id = get_user_id()
     user = db(db.user.user_id == user_id).select().first()
-    new_balance = user.user_balance - float(value) * int(num_shares)
-    db(db.user.user_id == user_id).update(user_balance=round(new_balance, 2))
+    new_balance = round(user.user_balance - float(value) * int(num_shares), 2)
+    db(db.user.user_id == user_id).update(user_balance=new_balance)
     return dict(balance=new_balance)
 
 
@@ -246,8 +246,8 @@ def sell_shares():
     # Update balance
     user_id = get_user_id()
     user = db(db.user.user_id == user_id).select().first()
-    new_balance = user.user_balance + float(value) * int(num_shares)
-    db(db.user.user_id == user_id).update(user_balance=round(new_balance, 2))
+    new_balance = round(user.user_balance + float(value) * int(num_shares), 2)
+    db(db.user.user_id == user_id).update(user_balance=new_balance)
     return dict(balance=new_balance)
 
 

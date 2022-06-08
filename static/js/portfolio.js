@@ -16,6 +16,7 @@ let init = (app) => {
         profile_ln : "",
         filename : "No file selected",
         file_url : null,
+        transactions : [],
     };
 
     app.enumerate = (a) => {
@@ -86,6 +87,12 @@ let init = (app) => {
         });
     };
 
+    app.get_transactions = function() {
+        axios.post(get_transactions_url).then(function(r) {
+            app.vue.transactions = r.data.transactions;
+        });
+    };
+
     // This contains all the methods
     app.methods = {
         get_holdings : app.get_holdings,
@@ -95,6 +102,7 @@ let init = (app) => {
         cancel_profile_edit : app.cancel_profile_edit,
         upload_pfp : app.upload_pfp,
         load_net_worth : app.load_net_worth,
+        get_transactions : app.get_transactions,
     };
 
     // This creates the Vue instance
@@ -107,6 +115,7 @@ let init = (app) => {
     app.init = () => {
         app.get_holdings();
         app.get_user_info();
+        app.get_transactions();
         google.charts.setOnLoadCallback(app.load_net_worth);
     };
 

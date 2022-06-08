@@ -106,7 +106,8 @@ def portfolio():
     return {'get_holdings_url' : URL('get_holdings'),
             'get_user_info_url' : URL('get_user_info'),
             'update_user_profile_url' : URL('update_user_profile', signer=url_signer),
-            'get_net_worth_url' : URL('get_net_worth')}
+            'get_net_worth_url' : URL('get_net_worth'),
+            'get_transactions_url' : URL('get_transactions')}
 
 @action('get_holdings')
 @action.uses(db, auth)
@@ -155,6 +156,21 @@ def get_net_worth():
     id = auth.get_user()['id']
     history, dates = get_net_worth_history(id, simulator)
     return {'history' : history, 'dates' : dates}
+
+@action('get_transactions', method='POST')
+@action.uses(db, auth)
+def get_transactions():
+    ensure_login()
+    user_id = auth.get_user()['id']
+    transactions = db(db.transaction.user_id == user_id).select(orderby=db.transaction.transaction_date)
+    ret = []
+    for t in transactions:
+        company = db.company[t.company_id].company_name
+        desc = f'{"Bought" if t.transaction_type == "buy" else "Sold"} {t.count} shares of {company} for {t.value_per_share}'
+        date = str(t.transaction_date)
+        ret.append({'desc' : desc, 'date' : date})
+    return {'transactions' : list(reversed(ret))}
+
 
 #################
 # Company

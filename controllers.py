@@ -114,10 +114,11 @@ def get_holdings():
     user_id = auth.get_user().get('id')
     holdings = get_portfolio(user_id)['holdings']
     holdings = [{'company_name' : (c := db.company[k]).company_name, 
+                 'id' : c.id,
                  'symbol' : c.company_symbol,
                  'shares' : v,
                  'price' : c.current_stock_value,
-                 'bought_price' : get_avg_bought_price(user_id, k)} for k,v in holdings.items()]
+                 'bought_price' : round(get_avg_bought_price(user_id, k), 2)} for k,v in holdings.items()]
     return {'holdings' : holdings}
 
 @action('get_user_info')
@@ -226,7 +227,7 @@ def buy_shares():
     user_id = get_user_id()
     user = db(db.user.user_id == user_id).select().first()
     new_balance = user.user_balance - float(value) * int(num_shares)
-    db(db.user.user_id == user_id).update(user_balance=new_balance)
+    db(db.user.user_id == user_id).update(user_balance=round(new_balance, 2))
     return None
 
 
@@ -246,7 +247,7 @@ def sell_shares():
     user_id = get_user_id()
     user = db(db.user.user_id == user_id).select().first()
     new_balance = user.user_balance + float(value) * int(num_shares)
-    db(db.user.user_id == user_id).update(user_balance=new_balance)
+    db(db.user.user_id == user_id).update(user_balance=round(new_balance, 2))
     return "ok"
 
 

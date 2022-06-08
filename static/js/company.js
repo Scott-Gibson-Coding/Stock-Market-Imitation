@@ -90,16 +90,24 @@ let init = (app) => {
     };
 
     app.buy_shares = function() {
-        axios.post(buy_shares_url,
-            {
-                num_shares: app.vue.buy_amount,
-                co_id: app.vue.co_id,
-                price: app.vue.co_price,
-            }).then(function (response) {
-                app.vue.user_balance = response.data.balance.toFixed(2);
-                app.reset_form(true);
-                app.show_buy_menu(false);
-            });
+        // Valid buy
+        if (app.vue.buy_amount * app.vue.co_price <= app.vue.user_balance) {
+            axios.post(buy_shares_url,
+                {
+                    num_shares: app.vue.buy_amount,
+                    co_id: app.vue.co_id,
+                    price: app.vue.co_price,
+                }).then(function (response) {
+                    app.vue.user_balance = response.data.balance.toFixed(2);
+                    app.reset_form(true);
+                    app.show_buy_menu(false);
+                });
+        }
+        // Invalid buy
+        else {
+            app.reset_form(true);
+            app.show_buy_menu(false);
+        }
     };
 
     app.sell_shares = function() {
